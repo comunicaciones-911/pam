@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0e683b">
+<meta name="description" content="PAM Baruta, Programa de Atención Médica de la Alcaldía de Baruta. Gratis, las 24 horas.">
+<title>Registro · PAM Baruta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+</head>
+<body data-page="registro">
+<div id="hdr"></div>
+<main>
+  <div class="ph wrap"><div class="phcard"><svg class="hleaf" viewBox="0 0 100 100" aria-hidden="true"><use href="#leaf"/></svg>
+    <span class="pill"><i></i>Registro gratuito</span>
+    <h1>Regístrate en <span class="mark">PAM Baruta</span></h1>
+    <p>El registro es <b>obligatorio para ser atendido</b> y se hace una sola vez. Primero verifica si tu cédula ya está registrada. Si no lo está, completa el formulario en pocos minutos.</p>
+  </div></div>
+
+  <section class="sec" id="verificar">
+    <div class="wrap">
+      <form class="verify" id="vform" novalidate>
+        <h2>¿Ya estás registrado?</h2>
+        <p class="muted">Escribe tu número de cédula y te decimos al instante.</p>
+        <div class="field" style="margin:18px 0 0">
+          <input type="radio" name="vtipo" id="vt1" value="NATIONAL_ID" checked hidden><label class="flabel" for="vdoc">Número de cédula</label>
+          <div class="vrow"><div><label class="sr" for="vdoc">Número de documento</label><input type="text" id="vdoc" inputmode="numeric" placeholder="Número de cédula, ej. 12345678" autocomplete="off"><div class="err">Escribe solo los números de la cédula (6 a 9 dígitos).</div></div>
+          <button class="btn b-noche" type="submit"><svg><use href="#i-search"/></svg>Verificar</button></div>
+        </div>
+        <div class="vres" id="vres" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="reg sec" id="registro" hidden>
+    <div class="wrap rgrid">
+      <aside>
+        <h2 class="big">Regístrate <span class="mark">gratis</span></h2>
+        <p>El registro es necesario para que te podamos atender. Son pasos cortos; tus respuestas de salud ayudan al médico a atenderte mejor.</p>
+        <ul class="perks">
+          <li><svg><use href="#i-check"/></svg>Solo para vecinos de Baruta</li>
+          <li><svg><use href="#i-check"/></svg>Puedes registrar a un familiar</li>
+          <li><svg><use href="#i-check"/></svg>Recibes un código único de afiliado</li>
+        </ul>
+        <div class="secure"><svg><use href="#i-lock"/></svg><span>Tus datos de salud son confidenciales y solo los ve el equipo médico de PAM Baruta.</span></div>
+      </aside>
+
+      <form class="wiz" id="wiz" novalidate>
+        <div id="wizbody">
+          <div class="prog" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="plabel"><span id="pname">Datos personales</span><span id="pnum">Paso 1 de 6</span></div>
+
+          <!-- 1 Personales -->
+          <div class="pane on" data-name="Datos personales">
+            <h3>¿Quién se registra?</h3>
+            <p class="hint">Los datos de la persona que va a recibir la atención.</p>
+            <div class="who field">
+              <span class="flabel">¿Quién llena este formulario?</span>
+              <div class="seg"><input type="radio" name="para" id="pa1" value="La persona que se afilia" checked><label for="pa1">Soy yo quien se afilia</label><input type="radio" name="para" id="pa2" value="Un familiar o cuidador"><label for="pa2">Lo lleno por un familiar</label></div>
+            </div>
+            <div class="g2">
+              <div class="field"><label for="nombre">Nombres <span class="opt">(como en el documento)</span></label><input type="text" class="upper" id="nombre" name="nombre" autocomplete="given-name" data-req><div class="err">Escribe los nombres.</div></div>
+              <div class="field"><label for="apellidos">Apellidos <span class="opt">(como en el documento)</span></label><input type="text" class="upper" id="apellidos" name="apellidos" autocomplete="family-name" data-req><div class="err">Escribe los apellidos.</div></div>
+              <div class="field"><label for="cedula">Cédula de identidad</label><input type="radio" name="tipo_documento" id="td1" value="NATIONAL_ID" checked hidden><input type="text" id="cedula" name="nro_documento" inputmode="numeric" readonly class="locked" data-req data-v="doc" data-tipo="tipo_documento"><button type="button" id="cambiarDoc" class="linkbtn">Verificar otra cédula</button><div class="err">Cédula: solo los números (ej. 12345678). Pasaporte: tal como aparece.</div></div>
+              <div class="field"><label for="nacimiento">Fecha de nacimiento</label><input type="date" id="nacimiento" name="nacimiento" data-req data-v="fecha"><div class="err">Indica una fecha válida.</div></div>
+              <div class="field"><label for="telefono">Número de teléfono</label><input type="tel" id="telefono" name="telefono" autocomplete="tel" placeholder="0414 123 4567" data-req data-v="tel"><div class="err">Escribe un teléfono de 11 dígitos.</div></div>
+              <div class="field"><label for="correo">Correo electrónico</label><input type="email" id="correo" name="correo" autocomplete="email" placeholder="nombre@correo.com" data-req data-v="email"><div class="err">Revisa el correo.</div></div>
+            </div>
+            <div class="field" data-radio="sexo"><span class="flabel">Sexo</span>
+              <div class="seg"><input type="radio" name="sexo" id="sx1" value="Femenino"><label for="sx1">Femenino</label><input type="radio" name="sexo" id="sx2" value="Masculino"><label for="sx2">Masculino</label></div>
+              <div class="err">Selecciona una opción.</div></div>
+          </div>
+
+          <!-- 2 Dirección -->
+          <div class="pane" data-name="Dirección">
+            <h3>¿Dónde vives?</h3>
+            <p class="hint">Así el médico o la ambulancia llegan rápido a tu casa.</p>
+            <div class="field"><label for="direccion">Calle / Avenida, Quinta o Residencia, Piso <span class="opt">(si aplica)</span></label><textarea id="direccion" name="direccion" placeholder="Ej. Av. Principal de Las Mercedes, Res. Los Pinos, piso 4, apto 4B" data-req></textarea><div class="err">Escribe la dirección.</div></div>
+            <div class="field"><label for="sector">Urbanización / Sector</label><input type="text" id="sector" name="sector" list="sectores" placeholder="Escribe o elige tu urbanización" data-req><div class="err">Indica tu urbanización o sector.</div>
+              <datalist id="sectores"></datalist><div class="covhint" id="covhint" hidden></div></div>
+          </div>
+
+          <!-- 3 Emergencia -->
+          <div class="pane" data-name="Contacto de emergencia">
+            <h3>Contacto de emergencia</h3>
+            <p class="hint">Una persona de confianza a quien llamar si lo necesitas.</p>
+            <div class="g2">
+              <div class="field"><label for="em_nombre">Nombre</label><input type="text" id="em_nombre" name="em_nombre" data-req><div class="err">Escribe el nombre.</div></div>
+              <div class="field"><label for="em_apellidos">Apellidos</label><input type="text" id="em_apellidos" name="em_apellidos" data-req><div class="err">Escribe los apellidos.</div></div>
+            </div>
+            <div class="field"><label for="em_telefono">Número de teléfono</label><input type="tel" id="em_telefono" name="em_telefono" placeholder="0412 765 4321" data-req data-v="tel"><div class="err">Escribe un teléfono de 11 dígitos.</div></div>
+          </div>
+
+          <!-- 4 Salud -->
+          <div class="pane" data-name="Datos de salud">
+            <h3>Tu salud</h3>
+            <p class="hint">Responde con tranquilidad: es confidencial y ayuda al médico.</p>
+
+            <div class="field" data-radio="fuma"><span class="flabel">¿Usted fuma?</span>
+              <div class="seg"><input type="radio" name="fuma" id="fu1" value="Sí" data-show="c-fuma"><label for="fu1">Sí</label><input type="radio" name="fuma" id="fu2" value="No"><label for="fu2">No</label></div>
+              <div class="err">Selecciona una opción.</div>
+              <div class="cond" id="c-fuma"><label class="flabel" for="fuma_unidades">¿Cuántas unidades por día?</label><input type="number" min="1" max="80" id="fuma_unidades" name="fuma_unidades" placeholder="Ej. 5"></div></div>
+
+            <div class="field" data-radio="alcohol"><span class="flabel">¿Consume bebidas alcohólicas?</span>
+              <div class="seg"><input type="radio" name="alcohol" id="al1" value="Sí" data-show="c-alcohol"><label for="al1">Sí</label><input type="radio" name="alcohol" id="al2" value="No"><label for="al2">No</label></div>
+              <div class="err">Selecciona una opción.</div>
+              <div class="cond" id="c-alcohol"><span class="flabel">¿Con qué frecuencia consume?</span>
+                <div class="seg"><input type="radio" name="alcohol_frec" id="af1" value="Ocasionalmente"><label for="af1">Ocasionalmente</label><input type="radio" name="alcohol_frec" id="af2" value="Fines de semana"><label for="af2">Fines de semana</label><input type="radio" name="alcohol_frec" id="af3" value="Varias veces por semana"><label for="af3">Varias veces por semana</label><input type="radio" name="alcohol_frec" id="af4" value="Diariamente"><label for="af4">Diariamente</label></div></div></div>
+
+            <div class="field" data-radio="alergia"><span class="flabel">¿Presenta alguna alergia?</span>
+              <div class="seg"><input type="radio" name="alergia" id="ag1" value="Sí" data-show="c-alergia"><label for="ag1">Sí</label><input type="radio" name="alergia" id="ag2" value="No"><label for="ag2">No</label></div>
+              <div class="err">Selecciona una opción.</div>
+              <div class="cond" id="c-alergia"><label class="flabel" for="alergia_cual">Especifique la alergia</label><input type="text" id="alergia_cual" name="alergia_cual" placeholder="Ej. penicilina, mariscos"></div></div>
+
+            <div class="field" data-radio="medicamento"><span class="flabel">¿Toma actualmente algún medicamento?</span>
+              <div class="seg"><input type="radio" name="medicamento" id="md1" value="Sí" data-show="c-med"><label for="md1">Sí</label><input type="radio" name="medicamento" id="md2" value="No"><label for="md2">No</label></div>
+              <div class="err">Selecciona una opción.</div>
+              <div class="cond" id="c-med"><label class="flabel" for="medicamento_cual">Especifique el medicamento</label><input type="text" id="medicamento_cual" name="medicamento_cual" placeholder="Ej. losartán 50 mg"></div></div>
+
+            <div class="field"><span class="flabel">Patologías previas <span class="opt">(marca todas las que apliquen)</span></span>
+              <div class="seg" id="pato">
+                <input type="checkbox" name="patologias" id="pt1" value="Hipertensión"><label for="pt1">Hipertensión</label>
+                <input type="checkbox" name="patologias" id="pt2" value="Diabetes"><label for="pt2">Diabetes</label>
+                <input type="checkbox" name="patologias" id="pt3" value="Asma / EPOC"><label for="pt3">Asma / EPOC</label>
+                <input type="checkbox" name="patologias" id="pt4" value="Enfermedad cardíaca"><label for="pt4">Cardíaca</label>
+                <input type="checkbox" name="patologias" id="pt5" value="Tiroides"><label for="pt5">Tiroides</label>
+                <input type="checkbox" name="patologias" id="pt6" value="Artritis / artrosis"><label for="pt6">Artritis / artrosis</label>
+                <input type="checkbox" name="patologias" id="pt7" value="Ninguna"><label for="pt7">Ninguna</label>
+              </div>
+              <input type="text" name="patologias_otras" id="patologias_otras" placeholder="Otras (escríbelas aquí)" style="margin-top:12px"></div>
+
+            <div class="field" data-radio="unico_plan"><span class="flabel">¿Es PAM Baruta su único plan de salud?</span>
+              <div class="seg"><input type="radio" name="unico_plan" id="up1" value="Sí"><label for="up1">Sí</label><input type="radio" name="unico_plan" id="up2" value="No, tengo otro seguro o plan"><label for="up2">No, tengo otro</label></div>
+              <div class="err">Selecciona una opción.</div></div>
+
+            <div class="field"><label for="importante">Para usted, ¿qué es lo más importante de tener un plan de salud?</label>
+              <select id="importante" name="importante" data-req><option value="">Elige una opción</option><option>Que me atiendan rápido</option><option>Que sea gratuito</option><option>Que el médico vaya a mi casa</option><option>Recibir mis medicamentos</option><option>Tener ambulancia disponible</option><option>Confiar en los médicos</option><option>Sentirme acompañado</option><option>Otro</option></select><div class="err">Elige una opción.</div></div>
+
+            <div class="field"><label for="conocio">¿Cómo conoció PAM Baruta?</label>
+              <select id="conocio" name="conocio" data-req><option value="">Elige una opción</option><option>Instagram @pambaruta</option><option>Alcaldía de Baruta</option><option>Jornada de salud</option><option>Un familiar o amigo</option><option>Mensaje de texto (SMS)</option><option>Junta de condominio o vecinos</option><option>Otro</option></select><div class="err">Elige una opción.</div></div>
+          </div>
+
+          <!-- 5 Familiares (dependientes Signo) -->
+          <div class="pane" data-name="Familiares a cargo">
+            <h3>Familiares a tu cargo</h3>
+            <p class="hint">Opcional. Agrega a tu cónyuge, hijos, padres u otros familiares que vivan contigo en Baruta. Cada uno recibe su propio código de afiliado.</p>
+            <div id="deps"></div>
+            <p class="nodeps" id="nodeps">No has agregado familiares. Si no tienes, toca “Continuar”.</p>
+            <button type="button" class="adddep" id="adddep">+ Agregar familiar</button>
+          </div>
+
+          <!-- 6 Revisión -->
+          <div class="pane" data-name="Revisión">
+            <h3>Revisa y confirma</h3>
+            <p class="hint">Si algo está mal, toca “Editar”.</p>
+            <div class="rev" id="rev"></div>
+            <div class="field" id="f-acepto" style="margin-top:20px"><label class="check"><input type="checkbox" id="acepto"> Declaro que la información es verdadera y autorizo a PAM Baruta a usarla para prestarme atención médica.</label><div class="err">Necesitamos tu autorización para completar el registro.</div></div>
+          </div>
+
+          <div class="navb">
+            <button type="button" class="btn b-linea" id="prev" style="visibility:hidden">← Atrás</button>
+            <button type="submit" class="btn b-noche" id="next">Continuar <span class="arr"><svg><use href="#i-arr"/></svg></span></button>
+          </div>
+        </div>
+
+        <div class="done" id="done" hidden tabindex="-1">
+          <div class="big"><svg><use href="#i-check"/></svg></div>
+          <h3>¡<span id="dbien">Bienvenido</span> a PAM Baruta, <span id="dname"></span>!</h3>
+          <p id="dmsg">Tu registro quedó listo. Guarda estos códigos: te los pueden pedir cuando llames.</p>
+          <div class="tokens">
+            <div class="tok"><span><small>Código de afiliado (único por persona)</small><code id="tkU"></code></span><button type="button" data-copy="tkU">Copiar</button></div>
+            <div class="tok"><span><small>Código de este registro</small><code id="tkR"></code></span><button type="button" data-copy="tkR">Copiar</button></div>
+            <div id="tkDeps" style="display:grid;gap:12px"></div>
+          </div>
+          <div class="ctas"><a class="btn b-hoja" href="tel:+582129095270"><svg><use href="#i-phone"/></svg>Guardar 0212 909 5270</a><button type="button" class="btn b-linea" id="otro">Registrar a otra persona</button></div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+<template id="depTpl">
+  <div class="dep">
+    <h4><span class="dn">Familiar</span><button type="button" class="rm">Quitar</button></h4>
+    <div class="g2">
+      <div class="field"><label>Nombres</label><input type="text" class="upper" data-k="nombre" data-req><div class="err">Escribe los nombres.</div></div>
+      <div class="field"><label>Apellidos</label><input type="text" class="upper" data-k="apellidos" data-req><div class="err">Escribe los apellidos.</div></div>
+      <div class="field"><label>Parentesco</label><select data-k="parentesco" data-req><option value="">Elige</option><option value="SPOUSE">Cónyuge (esposo/a)</option><option value="CHILD">Hijo/a</option><option value="PARENTS">Padre o madre</option><option value="IN_LAW">Suegro/a</option><option value="OTHERS">Otro familiar</option></select><div class="err">Elige el parentesco.</div></div>
+      <div class="field"><label>Sexo</label><select data-k="sexo" data-req><option value="">Elige</option><option value="Femenino">Femenino</option><option value="Masculino">Masculino</option></select><div class="err">Elige una opción.</div></div>
+      <input type="hidden" data-k="tipo_documento" value="NATIONAL_ID">
+      <div class="field"><label>Cédula de identidad</label><input type="text" inputmode="numeric" data-k="nro_documento" data-req data-v="doc" placeholder="Solo números"><div class="err">Escribe solo los números de la cédula.</div></div>
+      <div class="field"><label>Fecha de nacimiento</label><input type="date" data-k="nacimiento" data-req data-v="fecha"><div class="err">Indica una fecha válida.</div></div>
+      <div class="field"><label>Teléfono <span class="opt">(opcional)</span></label><input type="tel" data-k="telefono" placeholder="0414 123 4567" data-v="telopt"><div class="err">Escribe un teléfono de 11 dígitos.</div></div>
+    </div>
+  </div>
+</template>
+</main>
+<div id="ftr"></div>
+<script src="assets/core.js"></script>
+<script>
+/* ---------- Verificación de documento ---------- */
+const vform = $('#vform'), vres = $('#vres');
+const vtipo = () => vform.querySelector('[name=vtipo]:checked').value;
+$$('[name=vtipo]').forEach(r => r.addEventListener('change', () => { const p = vtipo() === 'PASSPORT'; $('#vdoc').inputMode = p ? 'text' : 'numeric'; $('#vdoc').placeholder = p ? 'Como aparece en el pasaporte' : 'Número de cédula, ej. 12345678'; vres.className = 'vres'; }));
+$('#vdoc').addEventListener('input', () => { $('#vdoc').closest('.field').classList.remove('bad'); vres.className = 'vres'; });
+const fmtDoc = (t, n) => t === 'PASSPORT' ? 'El pasaporte ' + n : 'La cédula ' + Number(n).toLocaleString('es-VE');
+vform.addEventListener('submit', async e => {
+  e.preventDefault();
+  const tipo = vtipo(), raw = $('#vdoc').value;
+  if (!Tokens.validDoc(tipo, raw)) { $('#vdoc').closest('.field').classList.add('bad'); $('#vdoc').focus(); return; }
+  const nro = Tokens.normDoc(tipo, raw), u = await DataService.findUser(tipo, nro);
+  if (u) {
+    vres.className = 'vres on si';
+    vres.innerHTML = `<h3><svg style="color:var(--verde)"><use href="#i-shield"/></svg>${fmtDoc(tipo, nro)} ya está registrada</h3>
+      <p>Ya formas parte de PAM Baruta${u.rol === 'DEPENDIENTE' ? ' como familiar de un afiliado' : ''}. No necesitas registrarte de nuevo: cuando lo necesites, solo llama.</p>
+      <div class="ctas"><a class="btn b-verde" href="${CONFIG.telHref}"><svg><use href="#i-phone"/></svg>${CONFIG.tel}</a><a class="btn b-linea" href="eventos.html"><svg><use href="#i-cal"/></svg>Ver eventos</a>${u.rol === 'TITULAR' ? '<button type="button" class="btn b-linea" id="vupd"><svg><use href="#i-edit"/></svg>Actualizar datos o agregar familiares</button>' : ''}</div>`;
+    $('#vupd')?.addEventListener('click', () => startWizard(tipo, nro, true));
+  } else {
+    vres.className = 'vres on no';
+    vres.innerHTML = `<h3><svg style="color:var(--verde)"><use href="#i-info"/></svg>${fmtDoc(tipo, nro)} aún no está registrada</h3>
+      <p>Regístrate gratis ahora. Te toma unos minutos y al final recibes tu código de afiliado.</p>
+      <div class="ctas"><button type="button" class="btn b-hoja" id="vgo">Registrarme ahora <span class="arr"><svg><use href="#i-arr"/></svg></span></button></div>`;
+    $('#vgo').addEventListener('click', () => startWizard(tipo, nro, false));
+  }
+});
+(function(){ const m = location.hash.match(/^#ced-(\d{6,9})$/); if (m) { $('#vdoc').value = m[1]; setTimeout(() => vform.requestSubmit(), 50); } })();
+function startWizard(tipo, nro, actualizar){
+  form.reset(); $('#deps').innerHTML = ''; depsUI(); $$('.cond').forEach(c => c.classList.remove('on')); $$('.field.bad').forEach(f => f.classList.remove('bad'));
+  $('#td1').checked = true; $('#cedula').value = nro;
+  $('#wizbody').hidden = false; $('#done').hidden = true;
+  $('#registro').hidden = false; $('#verificar').hidden = true;
+  if (actualizar) toast('Completa el formulario: tus datos se actualizarán y mantendrás tu código');
+  go(0);
+}
+function resetVerify(){ $('#registro').hidden = true; $('#verificar').hidden = false; $('#vdoc').value = ''; vres.className = 'vres'; window.scrollTo({ top: 0, behavior: 'smooth' }); $('#vdoc').focus(); }
+$$('[name=tipo_documento]').forEach(r => r.addEventListener('click', e => e.preventDefault()));   // documento ya verificado: no se cambia aquí
+document.addEventListener('click', e => { if (e.target.id === 'cambiarDoc') resetVerify(); });
+
+/* ---------- Cobertura de la urbanización ---------- */
+(async () => {
+  const ZZ = await DataService.listZonas(), nz = x => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  $('#sectores').innerHTML = ZZ.map(z => `<option value="${esc(z.nombre)}">`).join('');
+  const hint = () => { const q = nz($('#sector').value), z = ZZ.find(z => nz(z.nombre) === q), h = $('#covhint');
+    if (!q || !z) { h.hidden = true; return; }
+    h.hidden = false; h.className = 'covhint ' + (z.confirmada && z.estado === 'completa' ? 'ok' : 'warn');
+    h.innerHTML = z.confirmada && z.estado === 'completa' ? '<svg><use href="#i-shield"/></svg>Buenas noticias: en tu zona el médico va a tu casa las 24 horas.'
+      : `<svg><use href="#i-clock"/></svg>${esc(z.confirmada ? z.detalle : 'Tu zona está en el límite del municipio: confirmaremos la cobertura al llamarte.')}`; };
+  $('#sector').addEventListener('input', hint); $('#sector').addEventListener('change', hint);
+})();
+
+/* ---------- Formulario de registro ---------- */
+const form=$('#wiz'), panes=$$('.pane'), bars=$$('.prog i');
+function depsUI(){ const n=$$('#deps .dep').length; $('#nodeps').style.display=n?'none':'block'; $$('#deps .dep').forEach((c,i)=>c.querySelector('.dn').textContent='Familiar '+(i+1)); $('#adddep').textContent = n ? '+ Agregar otro familiar' : '+ Agregar familiar'; }
+$('#adddep').onclick=()=>{ const n=$('#depTpl').content.firstElementChild.cloneNode(true); $('#deps').append(n); depsUI(); n.querySelector('input').focus(); };
+$('#deps').addEventListener('click',e=>{ if(e.target.classList.contains('rm')){ e.target.closest('.dep').remove(); depsUI(); } });
+$('#deps').addEventListener('input',e=>e.target.closest('.field')?.classList.remove('bad'));
+$('#deps').addEventListener('change',e=>{ if(e.target.dataset.k==='tipo_documento'){ const i=e.target.closest('.dep').querySelector('[data-k=nro_documento]'); const pas=e.target.value==='PASSPORT'; i.inputMode=pas?'text':'numeric'; i.placeholder=pas?'Como aparece en el pasaporte':'Solo números'; } });
+let step=0;
+
+const V = {
+  doc: (v, el) => { const tipo = el.dataset.tipo ? (form.querySelector(`input[name="${el.dataset.tipo}"]:checked`)||{}).value : el.closest('.dep').querySelector('[data-k=tipo_documento]').value;
+    return tipo === 'PASSPORT' ? /^[A-Z0-9]{5,15}$/i.test(v.replace(/\s/g,'')) : /^[VE]?\d{6,9}$/i.test(v.replace(/[\s.\-]/g,'')); },
+  telopt: v => !v.trim() || [11,12].includes(v.replace(/\D/g,'').length),
+  tel: v => v.replace(/\D/g,'').length === 11 || (v.replace(/\D/g,'').length===12 && v.replace(/\D/g,'').startsWith('58')),
+  email: v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
+  fecha: v => { if(!v) return false; const d=new Date(v); return d < new Date() && d.getFullYear() > 1905; }
+};
+
+// Campos condicionales
+$$('input[type=radio]').forEach(r => r.addEventListener('change', () => {
+  $$(`input[name="${r.name}"][data-show]`).forEach(x => { const c=$('#'+x.dataset.show); c.classList.toggle('on', x.checked); if(!x.checked) c.querySelectorAll('input').forEach(i=>{ if(i.type==='radio') i.checked=false; else i.value=''; }); });
+  r.closest('.field')?.classList.remove('bad');
+}));
+// "Ninguna" excluye las demás patologías
+$('#pato').addEventListener('change', e => {
+  if(e.target.value==='Ninguna' && e.target.checked) $$('#pato input').forEach(i=>{ if(i.value!=='Ninguna') i.checked=false; });
+  else if(e.target.checked) $('#pt7').checked=false;
+});
+$$('#wiz input,#wiz select,#wiz textarea').forEach(i => i.addEventListener('input', () => i.closest('.field')?.classList.remove('bad')));
+$$('input[name=para]').forEach(r=>r.addEventListener('change',()=>{
+  const fam = $('#pa2').checked;
+  panes[0].querySelector('h3').textContent = fam ? 'Datos de la persona que se afilia' : '¿Quién se registra?';
+}));
+
+function validate(i){
+  let first=null; const p=panes[i];
+  p.querySelectorAll('[data-req],[data-v=telopt]').forEach(f=>{
+    const v=f.value.trim(); let ok = !!v;
+    if(f.dataset.v==='telopt') ok = V.telopt(v);
+    else if(ok && f.dataset.v) ok = V[f.dataset.v](v, f);
+    f.closest('.field').classList.toggle('bad', !ok);
+    if(!ok && !first) first=f;
+  });
+  p.querySelectorAll('[data-radio]').forEach(fl=>{
+    const ok = !!p.querySelector(`input[name="${fl.dataset.radio}"]:checked`);
+    fl.classList.toggle('bad', !ok);
+    if(!ok && !first) first=fl.querySelector('input');
+  });
+  if(first){ first.focus({preventScroll:false}); first.closest('.field').scrollIntoView({block:'center',behavior:'smooth'}); toast('Revisa los campos marcados en rojo'); }
+  return !first;
+}
+
+function collect(){
+  const fd=new FormData(form), o={};
+  for(const [k,v] of fd){ if(k==='patologias'){ (o[k] ||= []).push(v); } else o[k]=v; }
+  o.patologias = (o.patologias||[]).join(', ');
+  o.nombre = (o.nombre||'').trim().toUpperCase(); o.apellidos = (o.apellidos||'').trim().toUpperCase();
+  o.nro_documento = Tokens.normDoc(o.tipo_documento, o.nro_documento||'');
+  o.dependientes = $$('#deps .dep').map(c => { const d={}; c.querySelectorAll('[data-k]').forEach(i=>d[i.dataset.k]=i.value.trim()); 
+    d.nombre=d.nombre.toUpperCase(); d.apellidos=d.apellidos.toUpperCase(); d.nro_documento=Tokens.normDoc(d.tipo_documento,d.nro_documento); return d; });
+  return o;
+}
+
+const LABELS = [
+  ['Datos personales',0,[['para','Lo llena'],['nombre','Nombres'],['apellidos','Apellidos'],['tipo_txt','Documento'],['nacimiento','Nacimiento'],['sexo','Sexo'],['telefono','Teléfono'],['correo','Correo']]],
+  ['Dirección',1,[['direccion','Dirección'],['sector','Urbanización/Sector']]],
+  ['Contacto de emergencia',2,[['em_nombre','Nombre'],['em_apellidos','Apellidos'],['em_telefono','Teléfono']]],
+  ['Datos de salud',3,[['fuma','Fuma'],['fuma_unidades','Unidades/día'],['alcohol','Alcohol'],['alcohol_frec','Frecuencia'],['alergia','Alergia'],['alergia_cual','Cuál'],['medicamento','Medicamento'],['medicamento_cual','Cuál'],['patologias','Patologías'],['patologias_otras','Otras'],['unico_plan','Único plan'],['importante','Lo más importante'],['conocio','Cómo nos conoció']]]
+];
+function renderReview(){
+  const d=collect();
+  const fd = s => { if(!s) return ''; const [y,m,dd]=s.split('-'); return `${dd}/${m}/${y}`; };
+  d.nacimiento = fd(d.nacimiento);
+  d.tipo_txt = (d.tipo_documento==='PASSPORT'?'Pasaporte ':'Cédula ') + d.nro_documento;
+  const PAR = {SPOUSE:'Cónyuge',CHILD:'Hijo/a',PARENTS:'Padre/madre',IN_LAW:'Suegro/a',OTHERS:'Otro familiar'};
+  $('#rev').innerHTML = LABELS.map(([t,i,fields])=>`<section><h4>${t}<button type="button" data-go="${i}">Editar</button></h4><dl>${
+    fields.filter(([k])=>d[k]).map(([k,l])=>`<dt>${l}</dt><dd>${esc(d[k])}</dd>`).join('')}</dl></section>`).join('')
+    + `<section><h4>Familiares a cargo (${d.dependientes.length})<button type="button" data-go="4">Editar</button></h4>${
+      d.dependientes.length ? '<dl>' + d.dependientes.map(p=>`<dt>${PAR[p.parentesco]||''}</dt><dd>${esc(p.nombre+' '+p.apellidos)} · ${p.tipo_documento==='PASSPORT'?'Pas.':'C.I.'} ${esc(p.nro_documento)} · ${fd(p.nacimiento)}</dd>`).join('') + '</dl>'
+      : '<p style="color:var(--gris);font-size:.9em">Ninguno</p>'}</section>`;
+}
+$('#rev').addEventListener('click', e=>{ if(e.target.dataset.go) go(+e.target.dataset.go); });
+
+function go(i, scroll=true){
+  step=i;
+  panes.forEach((p,k)=>p.classList.toggle('on',k===i));
+  bars.forEach((b,k)=>{ b.classList.toggle('done',k<i); b.classList.toggle('on',k===i); });
+  $('#pname').textContent=panes[i].dataset.name; $('#pnum').textContent=`Paso ${i+1} de ${panes.length}`;
+  $('#prev').style.visibility = i ? 'visible' : 'hidden';
+  $('#next').firstChild.textContent = i===panes.length-1 ? 'Completar registro ' : 'Continuar ';
+  if(i===panes.length-1) renderReview();
+  if(scroll) form.scrollIntoView({block:'start',behavior:'smooth'});
+}
+$('#prev').onclick=()=>go(step-1);
+
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  if(step < panes.length-1){ if(validate(step)) go(step+1); return; }
+  const acc=$('#acepto'); $('#f-acepto').classList.toggle('bad',!acc.checked);
+  if(!acc.checked){ acc.focus(); return; }
+  const btn=$('#next'); btn.disabled=true;
+  try{
+    const data=collect();
+    const prev = await DataService.findUser(data.tipo_documento, data.nro_documento);
+    const r = await DataService.saveRegistration(data);
+    $('#dname').textContent=data.nombre.split(' ')[0].toLowerCase().replace(/^./,c=>c.toUpperCase());
+    $('#dbien').textContent = data.sexo==='Femenino' ? 'Bienvenida' : 'Bienvenido';
+    $('#tkU').textContent=r.userToken; $('#tkR').textContent=r.regToken;
+    $('#tkDeps').innerHTML = r.deps.map((p,i)=>`<div class="tok"><span><small>Código de afiliado · ${esc(p.nombre.split(' ')[0])} (familiar)</small><code id="tkD${i}">${p.token}</code></span><button type="button" data-copy="tkD${i}">Copiar</button></div>`).join('');
+    $('#dmsg').textContent = prev
+      ? 'Este documento ya estaba registrado: mantienes tu código de afiliado y actualizamos tus datos con un registro nuevo.'
+      : 'Tu registro quedó listo. Guarda estos códigos: te los pueden pedir cuando llames.';
+    $('#wizbody').hidden=true; $('#done').hidden=false; $('#done').focus();
+    form.scrollIntoView({block:'start',behavior:'smooth'});
+  }catch(err){ toast('No pudimos guardar el registro. Intenta de nuevo o llama al 0212 909 5270'); }
+  finally{ btn.disabled=false; }
+});
+
+$('#done').addEventListener('click', async e=>{
+  const id=e.target.dataset.copy; if(!id) return;
+  try{ await navigator.clipboard.writeText($('#'+id).textContent); toast('Código copiado'); }
+  catch(_){ toast('Anótalo: '+$('#'+id).textContent); }
+});
+$('#otro').onclick=()=>{ resetVerify();
+  form.reset(); $('#deps').innerHTML=''; depsUI(); $$('.cond').forEach(c=>c.classList.remove('on')); $$('.field.bad').forEach(f=>f.classList.remove('bad'));
+  panes[0].querySelector('h3').textContent='¿Quién se registra?';
+  $('#done').hidden=true; $('#wizbody').hidden=false; go(0);
+};
+depsUI(); go(0, false);
+
+</script>
+</body>
+</html>

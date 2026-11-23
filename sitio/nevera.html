@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0e683b">
+<meta name="description" content="Hoja para la nevera de PAM Baruta: teléfonos del médico 24 horas, medicamentos por WhatsApp y QR para registrarse.">
+<title>Hoja para la nevera · PAM Baruta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+</head>
+<body data-page="nevera">
+<div id="hdr"></div>
+<main>
+  <div class="ph wrap"><div class="phcard"><svg class="hleaf" viewBox="0 0 100 100" aria-hidden="true"><use href="#leaf"/></svg>
+    <span class="pill"><i></i>Para la nevera</span>
+    <h1>¿Qué hago si <span class="mark">necesito ayuda?</span></h1>
+    <p>Descarga o imprime esta hoja y pégala donde la vea toda la familia. Tiene los teléfonos del médico, el WhatsApp de medicamentos y un QR para registrarse.</p>
+  </div></div>
+  <section class="nvsheet">
+    <div class="wrap">
+      <div class="nvtools">
+        <button type="button" class="btn b-noche" id="bImg"><svg><use href="#i-down"/></svg>Descargar la hoja (imagen)</button>
+        <button type="button" class="btn b-hoja" id="bPrint"><svg><use href="#i-print"/></svg>Imprimir</button>
+        <button type="button" class="btn b-linea" id="bQr"><svg><use href="#i-qr"/></svg>Descargar solo el QR</button>
+      </div>
+      <p class="nvurl">El QR lleva a: <b id="qrUrl"></b></p>
+      <div class="nvprev"><img id="prev" alt="Hoja para la nevera de PAM Baruta con los teléfonos y el QR de registro"></div>
+    </div>
+  </section>
+</main>
+<div id="ftr"></div>
+<script src="assets/qrcode.js"></script>
+<script src="assets/core.js"></script>
+<script>
+(async () => {
+  const URL_REG = QR.registro();
+  $('#qrUrl').textContent = URL_REG.replace(/^https?:\/\//, '');
+  const C = { verde: '#0e683b', hoja: '#83ba2a', noche: '#082e1b', blanco: '#fff', menta: '#eef6e8', gris: '#5b6b61', linea: '#e1eadc' };
+  const W = 1240, H = 1754; // A4 a 150 ppp
+  const cargar = src => new Promise(ok => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = src; });
+  /* Íconos del sprite como imagen (mismo set Iconify del sitio) */
+  const icono = (id, color) => { const s = document.getElementById(id); if (!s) return Promise.resolve(null);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${s.getAttribute('viewBox')}" style="color:${color}" fill="${color}">${s.innerHTML}</svg>`;
+    return cargar('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.replace(/currentColor/g, color))); };
+  try { await Promise.race([Promise.all(['400','700','800','900'].map(w => document.fonts.load(`${w} 40px Figtree`))), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}
+  const [lBaruta, lNueve, icTel, icWa, icTelV] = await Promise.all([cargar('img/logo-baruta.png'), cargar('img/logo-nueveonce.png'), icono('i-phone', C.verde), icono('i-wa', C.blanco), icono('i-phone', C.blanco)]);
+
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d');
+  const F = (w, px) => `${w} ${px}px Figtree, system-ui, sans-serif`;
+  const rr = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
+  const txt = (t, x, y, font, color, align = 'left') => { g.font = font; g.fillStyle = color; g.textAlign = align; g.textBaseline = 'alphabetic'; g.fillText(t, x, y); };
+  const wrap = (t, x, y, maxW, lh, font, color) => { g.font = font; const words = t.split(' '); let line = '', yy = y;
+    for (const w of words) { const test = line ? line + ' ' + w : w; if (g.measureText(test).width > maxW && line) { txt(line, x, yy, font, color); line = w; yy += lh; } else line = test; }
+    if (line) txt(line, x, yy, font, color); return yy; };
+  const leaf = new Path2D('M88 10C50 8 18 26 12 62c-2 12 1 22 6 28 4-18 16-36 36-48-16 14-26 30-30 50 6 2 14 2 22-1 34-12 44-46 42-81z');
+  const logoPAM = (x, y, d) => { g.save(); g.beginPath(); g.arc(x + d / 2, y + d / 2, d / 2, 0, Math.PI * 2); g.fillStyle = C.hoja; g.fill();
+    g.translate(x + d * .18, y + d * .16); g.scale(d * .64 / 100, d * .64 / 100); g.fillStyle = C.noche; g.fill(leaf); g.restore(); };
+
+  // Fondo
+  g.fillStyle = C.blanco; g.fillRect(0, 0, W, H);
+  // Banda superior
+  const gr = g.createLinearGradient(0, 0, W, 380); gr.addColorStop(0, C.noche); gr.addColorStop(1, C.verde);
+  g.fillStyle = gr; rr(0, -40, W, 420, 56); g.fill();
+  g.save(); g.globalAlpha = .1; g.translate(900, -50); g.scale(4, 4); g.fillStyle = C.hoja; g.fill(leaf); g.restore();
+  logoPAM(80, 56, 88);
+  txt('PAM Baruta', 188, 100, F(900, 44), C.blanco);
+  txt('Programa de Atención Médica', 190, 134, F(600, 23), '#cfe3c6');
+  txt('¿Qué hago si necesito ayuda?', 80, 250, F(900, 70), C.blanco);
+  txt('Es gratis. Te atendemos las 24 horas, todos los días.', 82, 314, F(700, 33), C.hoja);
+
+  // 1. Teléfonos
+  let y = 446;
+  txt('LLAMA AL MÉDICO 24 HORAS', 80, y, F(900, 25), C.verde);
+  y += 22;
+  [CONFIG.tel, CONFIG.tel2].forEach((t, i) => { const x = 80 + i * 550;
+    rr(x, y, 530, 132, 30); g.fillStyle = C.hoja; g.fill();
+    g.beginPath(); g.arc(x + 70, y + 66, 40, 0, Math.PI * 2); g.fillStyle = C.blanco; g.fill();
+    if (icTel) g.drawImage(icTel, x + 48, y + 44, 44, 44);
+    txt(t, x + 130, y + 86, F(900, 50), C.noche); });
+
+  // 2. Al llamar, dinos
+  y += 200;
+  txt('AL LLAMAR, DINOS:', 80, y, F(900, 25), C.verde);
+  y += 22;
+  [['Tu nombre', 'y el del paciente'], ['Tu cédula', 'la del paciente afiliado'], ['Dónde estás', 'dirección y urbanización']].forEach(([a, b], i) => { const x = 80 + i * 366;
+    rr(x, y, 350, 150, 28); g.fillStyle = C.menta; g.fill();
+    g.beginPath(); g.arc(x + 50, y + 48, 26, 0, Math.PI * 2); g.fillStyle = C.verde; g.fill();
+    txt(String(i + 1), x + 50, y + 59, F(900, 30), C.blanco, 'center');
+    txt(a, x + 28, y + 108, F(900, 31), C.noche);
+    txt(b, x + 28, y + 136, F(500, 21), C.gris); });
+
+  // 3. Medicamentos
+  y += 190;
+  rr(80, y, W - 160, 176, 30); g.fillStyle = C.blanco; g.fill(); g.lineWidth = 4; g.strokeStyle = C.linea; g.stroke();
+  g.beginPath(); g.arc(166, y + 88, 52, 0, Math.PI * 2); g.fillStyle = C.verde; g.fill();
+  if (icWa) g.drawImage(icWa, 134, y + 56, 64, 64);
+  txt('MEDICAMENTOS POR WHATSAPP', 250, y + 50, F(900, 23), C.verde);
+  txt(CONFIG.waMed, 250, y + 104, F(900, 50), C.noche);
+  txt('Envía tu informe médico y el récipe vigente (foto clara de ambos).', 250, y + 136, F(600, 22), C.noche);
+  txt('Lunes a viernes 7:00 am a 4:00 pm · Fines de semana y feriados 8:00 am a 4:00 pm', 250, y + 163, F(500, 19), C.gris);
+
+  // 4. QR de registro
+  y += 212;
+  const qh = 400, qs = 330;
+  rr(80, y, W - 160, qh, 38); g.fillStyle = C.noche; g.fill();
+  const qc = QR.canvas(URL_REG, 400, C.noche);
+  rr(115, y + 35, qs, qs, 24); g.fillStyle = C.blanco; g.fill();
+  g.imageSmoothingEnabled = false; g.drawImage(qc, 115 + 6, y + 41, qs - 12, qs - 12); g.imageSmoothingEnabled = true;
+  const tx = 490;
+  txt('¿Aún no estás registrado?', tx, y + 88, F(900, 42), C.blanco);
+  let yy = wrap('Escanea este código con la cámara de tu teléfono y regístrate gratis. Es obligatorio para que te atiendan y lo haces una sola vez.', tx, y + 136, W - 120 - tx, 35, F(500, 25), '#dbe9d4');
+  yy += 30;
+  ['Abre la cámara del teléfono', 'Apunta al código y toca el enlace'].forEach((a, i) => { const cy = yy + 22 + i * 58;
+    g.beginPath(); g.arc(tx + 20, cy, 20, 0, Math.PI * 2); g.fillStyle = C.hoja; g.fill();
+    txt(String(i + 1), tx + 20, cy + 9, F(900, 24), C.noche, 'center');
+    txt(a, tx + 56, cy + 9, F(700, 25), C.blanco); });
+
+  // Pie con logos
+  y += qh + 34;
+  g.fillStyle = C.linea; g.fillRect(80, y, W - 160, 3);
+  const ly = y + 26, lh = 120;
+  txt('PAM Baruta,', 80, ly + 50, F(900, 36), C.verde);
+  txt('salud que responde.', 80, ly + 92, F(900, 36), C.hoja);
+  if (lNueve) { const w = 270, h = w * lNueve.height / lNueve.width; g.drawImage(lNueve, W - 80 - w, ly + (lh - h) / 2, w, h); }
+  if (lBaruta) { const w = lh * lBaruta.width / lBaruta.height; g.drawImage(lBaruta, W - 80 - 270 - 50 - w, ly, w, lh); }
+
+  const url = cv.toDataURL('image/png');
+  $('#prev').src = url;
+  $('#bImg').onclick = () => QR.bajar(cv, 'PAM-Baruta-hoja-para-la-nevera.png');
+  $('#bQr').onclick = () => QR.bajar(QR.canvas(URL_REG, 1200), 'PAM-Baruta-QR-registro.png');
+  $('#bPrint').onclick = () => window.print();
+})();
+</script>
+</body>
+</html>

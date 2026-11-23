@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0e683b">
+<meta name="description" content="Zonas de Baruta donde PAM Baruta presta atención médica a domicilio.">
+<title>Zonas · PAM Baruta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+<style>
+.cov{display:grid;grid-template-columns:420px 1fr;gap:20px;align-items:start}
+.panel2{background:#fff;border:2px solid var(--linea);border-radius:30px;padding:22px;box-shadow:var(--sombra);position:sticky;top:100px;max-height:calc(100vh - 120px);display:flex;flex-direction:column}
+.panel2 h2{font-size:1.35em;font-weight:900;margin-bottom:4px}
+.big-search{position:relative;margin:14px 0 12px}
+.big-search svg{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:26px;height:26px;color:var(--verde)}
+.big-search input{padding-left:56px !important;font-weight:600}
+.filt{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.filt button{border:2px solid var(--linea);background:#fff;border-radius:999px;padding:9px 14px;font:inherit;font-weight:800;font-size:.86em;cursor:pointer;display:inline-flex;gap:8px;align-items:center;min-height:46px}
+.filt button i{width:12px;height:12px;border-radius:50%}
+.filt button[aria-pressed="true"]{border-color:var(--noche);background:var(--noche);color:#fff}
+.zlist{overflow:auto;flex:1;margin:0 -8px;padding:0 8px}
+.zgrp{border-bottom:1px solid var(--linea)}
+.zsec{width:100%;border:0;background:none;cursor:pointer;font:inherit;font-weight:900;font-size:.86em;letter-spacing:.05em;text-transform:uppercase;color:var(--noche);padding:16px 8px;display:flex;justify-content:space-between;align-items:center;border-radius:14px;text-align:left}
+.zsec:hover{background:var(--niebla)}
+.zc{display:flex;align-items:center;gap:10px;color:var(--verde)}
+.zc svg{width:18px;height:18px;transform:rotate(135deg);transition:transform .2s}
+.zgrp.open .zc svg{transform:rotate(-45deg)}
+.zbody{display:none;padding-bottom:10px}
+.zgrp.open .zbody{display:block}
+.zi{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:2px solid transparent;background:none;border-radius:18px;padding:11px 12px;font:inherit;cursor:pointer;color:var(--noche)}
+.zi:hover{background:var(--niebla)}
+.zi[aria-current="true"]{border-color:var(--verde);background:var(--menta)}
+.zdot{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;flex:none}
+.zdot svg{width:22px;height:22px}
+.st-completa .zdot{background:var(--menta)}.st-completa .zdot svg{color:var(--verde)}
+.st-parcial .zdot{background:#eef6e3}.st-parcial .zdot svg{color:#0e683b}
+.zi b{display:block;font-weight:800;line-height:1.2}
+.zi small{font-weight:600;color:var(--gris);font-size:.82em}
+.zi .chev{margin-left:auto;width:20px;height:20px;color:var(--gris);flex:none}
+.badge2{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-weight:800;font-size:.82em}
+.b-comp{background:var(--menta);color:var(--verde)}.b-parc{background:#eef6e3;color:#082e1b}.b-val{background:#eceeea;color:#4a524d}
+.mapwrap{position:relative;border-radius:34px;overflow:hidden;background:#eef0ec;border:2px solid var(--linea);box-shadow:var(--sombra);height:calc(100vh - 120px);min-height:560px;position:sticky;top:100px}
+#map{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+#map.drag{cursor:grabbing}
+.sector-lbl{font-family:Figtree,sans-serif;font-weight:900;font-size:calc(var(--k,1) * 14px);fill:#082e1b;opacity:.35;paint-order:stroke;stroke:#e3e6e1;stroke-width:calc(var(--k,1) * 5px);letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
+.mk{cursor:pointer}
+.mk .halo{opacity:0}
+.mk.sel .halo{opacity:1;animation:halo 1.6s infinite}
+@keyframes halo{0%{r:10;opacity:.6}100%{r:34;opacity:0}}
+.mk text{font-family:Figtree,sans-serif;font-weight:800;font-size:13px;fill:#2a332e;paint-order:stroke;stroke:#eef0ec;stroke-width:4px;pointer-events:none;opacity:0;transition:opacity .2s}
+.zoomed .mk text,.mk.sel text,.mk:hover text{opacity:1}
+.mctrl{position:absolute;right:16px;top:16px;display:grid;gap:8px}
+.mctrl button{width:52px;height:52px;border-radius:16px;border:2px solid var(--linea);background:#fff;font:inherit;font-size:1.5em;font-weight:900;cursor:pointer;color:var(--noche);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.legend{position:absolute;left:16px;bottom:16px;background:#fff;border-radius:18px;padding:12px 16px;display:grid;gap:6px;font-weight:700;font-size:.86em;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.legend span{display:flex;gap:8px;align-items:center}
+.legend i{width:14px;height:14px;border-radius:50%;display:inline-block}
+.approx{position:absolute;left:16px;top:16px;background:rgba(255,255,255,.92);border-radius:12px;padding:8px 12px;font-size:.78em;font-weight:700;color:var(--gris);max-width:260px}
+.pop{position:absolute;z-index:5;width:340px;background:#fff;border-radius:24px;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.2);transform:translate(-50%,calc(-100% - 26px));opacity:0;pointer-events:none;transition:opacity .2s}
+.pop.on{opacity:1;pointer-events:auto}
+.pop::after{content:"";position:absolute;left:50%;bottom:-10px;width:20px;height:20px;background:#fff;transform:translateX(-50%) rotate(45deg);border-radius:4px}
+.pop h3{font-size:1.3em;font-weight:900;margin:8px 34px 2px 0;line-height:1.15}
+.pop .psec{color:var(--gris);font-weight:600;font-size:.88em}
+.pop p{margin-top:10px;font-size:.93em;line-height:1.5}
+.pop .x{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;border:0;background:var(--niebla);display:grid;place-items:center;cursor:pointer}
+.pop .x svg{width:18px;height:18px}
+.pop .ctas{margin-top:14px;gap:8px}
+.pop .btn{min-height:50px;padding:10px 18px;font-size:.93em}
+.mtoggle{display:none}
+.zdet{display:none}
+.nores{color:var(--gris);text-align:center;padding:20px 10px}
+@media(max-width:980px){
+  .cov{grid-template-columns:1fr}
+  .panel2{position:static;max-height:none}
+  .zlist{overflow:visible}
+  .mapwrap{position:relative;top:0;height:70vh;min-height:440px;display:none}
+  .mapwrap.on{display:block}
+  .panel2.off{display:none}
+  .mtoggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#fff;border:2px solid var(--linea);border-radius:999px;padding:5px;margin-bottom:14px}
+  .mtoggle button{border:0;border-radius:999px;padding:12px;font:inherit;font-weight:800;background:none;cursor:pointer;display:flex;gap:8px;justify-content:center;align-items:center}
+  .mtoggle button svg{width:22px;height:22px}
+  .mtoggle button[aria-pressed="true"]{background:var(--noche);color:#fff}
+  .zi[aria-current="true"]+.zdet{display:block}
+  .zdet{background:var(--niebla);border-radius:18px;padding:16px;margin:4px 0 10px;font-size:.95em}
+  .zdet .ctas{margin-top:12px;gap:8px}.zdet .btn{min-height:52px;padding:10px 16px;font-size:.92em;flex:1}
+  .pop{left:12px !important;right:12px;top:auto !important;bottom:12px;width:auto;transform:none;max-height:58%;overflow:auto}
+  .pop::after{display:none}
+  .mapwrap:has(.pop.on) .legend{display:none}
+}
+</style>
+</head>
+<body data-page="cobertura">
+<div id="hdr"></div>
+<main>
+  <div class="ph wrap"><div class="phcard ph2"><svg class="hleaf" viewBox="0 0 100 100" aria-hidden="true"><use href="#leaf"/></svg>
+    <div class="ph2txt"><span class="pill"><i></i>Cobertura PAM Baruta</span>
+    <h1>¿Llegamos a tu <span class="mark">urbanización?</span></h1>
+    <p>Busca tu zona y mira en qué horario va el médico a tu casa. La telemedicina funciona en todas.</p></div>
+    <div class="ph2stats" id="covstats"></div>
+  </div></div>
+  <section class="sec">
+    <div class="wrap">
+      <div class="mtoggle" role="group" aria-label="Cómo ver las zonas"><button type="button" data-view="lista" aria-pressed="true"><svg><use href="#i-list"/></svg>Lista</button><button type="button" data-view="mapa" aria-pressed="false"><svg><use href="#i-pin"/></svg>Mapa</button></div>
+      <div class="cov">
+        <aside class="panel2" id="panel">
+          <h2>Busca tu zona</h2>
+          <div class="big-search"><svg><use href="#i-search"/></svg><label class="sr" for="zq">Urbanización</label><input type="text" id="zq" placeholder="Ej. Santa Paula, Las Minas…" autocomplete="off"></div>
+          <div class="filt" id="filt" role="group" aria-label="Filtrar">
+            <button type="button" data-f="todas" aria-pressed="true">Todas</button>
+            <button type="button" data-f="completa" aria-pressed="false"><i style="background:var(--verde)"></i>24 horas</button>
+            <button type="button" data-f="parcial" aria-pressed="false"><i style="background:#83ba2a"></i>Horario parcial</button>
+            <button type="button" data-f="validar" aria-pressed="false"><i style="background:#9aa29d"></i>Por confirmar</button>
+          </div>
+          <div class="zlist" id="zlist"></div>
+        </aside>
+        <div class="mapwrap" id="mapwrap">
+          <svg id="map" role="img" aria-label="Mapa referencial de Baruta con las zonas de cobertura"></svg>
+          <div class="approx">Mapa referencial · ubicaciones aproximadas</div>
+          <div class="mctrl"><button type="button" id="zin" aria-label="Acercar">+</button><button type="button" id="zout" aria-label="Alejar">−</button><button type="button" id="zall" aria-label="Ver todo Baruta" style="font-size:.8em">Todo</button></div>
+          <div class="legend"><span><i style="background:#0e683b"></i>24 horas</span><span><i style="background:#83ba2a"></i>Horario parcial</span><span><i style="background:#fff;border:3px dashed #8a938d"></i>Por confirmar</span></div>
+          <div class="pop" id="pop" role="dialog" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="ftr"></div>
+<script src="assets/core.js"></script>
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+const W = 1000, PAD = 70;
+let Z = [], sel = null, filtro = 'todas';
+const abiertos = new Set();
+const COL = { completa: '#0e683b', parcial: '#83ba2a' };
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const estadoTxt = z => !z.confirmada ? ['b-val', 'Zona limítrofe · por confirmar'] : z.estado === 'completa' ? ['b-comp', 'Cobertura 24 horas'] : ['b-parc', 'Horario parcial'];
+const detalleTxt = z => (z.estado === 'completa' ? 'Médico a domicilio y ambulancia las 24 horas, todos los días.' : z.detalle) + (!z.confirmada ? ' Esta zona está en el límite del municipio: confírmalo llamando antes.' : '');
+
+/* ---------- Proyección ---------- */
+let P;
+function project(){
+  const la = Z.map(z => z.lat), lo = Z.map(z => z.lon);
+  const [a0, a1, o0, o1] = [Math.min(...la), Math.max(...la), Math.min(...lo), Math.max(...lo)];
+  const k = Math.cos(10.45 * Math.PI / 180), H = (a1 - a0) / ((o1 - o0) * k) * (W - 2 * PAD) + 2 * PAD;
+  P = { H, x: lon => PAD + (lon - o0) / (o1 - o0) * (W - 2 * PAD), y: lat => PAD + (a1 - lat) / (a1 - a0) * (H - 2 * PAD) };
+}
+function hull(pts){
+  pts = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cr = (o, a, b) => (a[0]-o[0])*(b[1]-o[1]) - (a[1]-o[1])*(b[0]-o[0]);
+  const lo = [], up = [];
+  for (const p of pts){ while (lo.length >= 2 && cr(lo[lo.length-2], lo[lo.length-1], p) <= 0) lo.pop(); lo.push(p); }
+  for (const p of pts.reverse()){ while (up.length >= 2 && cr(up[up.length-2], up[up.length-1], p) <= 0) up.pop(); up.push(p); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+const el = (t, a = {}, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.append(e); return e; };
+
+/* ---------- Mapa ---------- */
+const svg = $('#map'); let vb, full;
+function drawMap(){
+  project(); svg.innerHTML = '';
+  full = { x: 0, y: 0, w: W, h: P.H };
+  const defs = el('defs', {}, svg);
+  const pat = el('pattern', { id: 'grid', width: 40, height: 40, patternUnits: 'userSpaceOnUse' }, defs);
+  el('path', { d: 'M40 0H0V40', fill: 'none', stroke: '#e2e5df', 'stroke-width': 1 }, pat);
+  el('rect', { x: -2000, y: -2000, width: 5000, height: 5000, fill: 'url(#grid)' }, svg);
+  const g = el('g', { id: 'world' }, svg);
+  const tones = { 'Las Mercedes / Chuao': '#e3e6e1', 'El Cafetal': '#dfe3dd', 'Baruta casco / Las Minas': '#e6e8e3', 'Prados del Este / Santa Fe / La Trinidad': '#dde1db', 'Limítrofe': '#f4f5f2' };
+  const secs = [...new Set(Z.map(z => z.sector))], labels = [];
+  secs.forEach(s => {
+    const pts = Z.filter(z => z.sector === s).map(z => [P.x(z.lon), P.y(z.lat)]);
+    const lim = s === 'Limítrofe';
+    if (!lim) {
+      const h = hull(pts.length > 2 ? pts : pts.concat(pts.map(([x, y]) => [x + 1, y + 1])));
+      el('polygon', { points: h.map(p => p.join(',')).join(' '), fill: tones[s], stroke: tones[s], 'stroke-width': 90, 'stroke-linejoin': 'round' }, g);
+      const cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cy = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+      labels.push([cx, cy, s.split(' / ')[0]]);
+    }
+  });
+  labels.forEach(([x, y, t]) => { const e = el('text', { x, y, 'text-anchor': 'middle', class: 'sector-lbl' }, g); e.textContent = t; });
+  const mk = el('g', { id: 'markers' }, g);
+  Z.forEach(z => {
+    const x = P.x(z.lon), y = P.y(z.lat), m = el('g', { class: 'mk', 'data-id': z.id, 'data-x': x, 'data-y': y, transform: `translate(${x},${y})`, tabindex: 0, role: 'button', 'aria-label': z.nombre }, mk);
+    el('circle', { class: 'halo', r: 10, fill: 'none', stroke: z.confirmada ? COL[z.estado] : '#8a938d', 'stroke-width': 3 }, m);
+    el('circle', { r: 11, fill: z.confirmada ? COL[z.estado] : '#fff', stroke: z.confirmada ? '#fff' : '#8a938d', 'stroke-width': 3, 'stroke-dasharray': z.confirmada ? '' : '4 3' }, m);
+    if (z.confirmada) el('circle', { r: 3.5, fill: '#fff' }, m);
+    const t = el('text', { x: 16, y: 4 }, m); t.textContent = z.nombre;
+  });
+  vb = { ...full }; setVB(full, false);
+}
+function setVB(v, anim = true){
+  const a = svg.clientWidth ? svg.clientHeight / svg.clientWidth : P.H / W;
+  if (v.h / v.w < a) { const nh = v.w * a; v = { ...v, y: v.y - (nh - v.h) / 2, h: nh }; } else { const nw = v.h / a; v = { ...v, x: v.x - (nw - v.w) / 2, w: nw }; }
+  const from = vb || v, t0 = performance.now(), D = anim && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 450 : 0;
+  const step = now => {
+    const k = D ? Math.min(1, (now - t0) / D) : 1, e = 1 - Math.pow(1 - k, 3);
+    vb = { x: from.x + (v.x - from.x) * e, y: from.y + (v.y - from.y) * e, w: from.w + (v.w - from.w) * e, h: from.h + (v.h - from.h) * e };
+    svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+    svg.classList.toggle('zoomed', vb.w < W * .6);
+    const kk = svg.clientWidth ? vb.w / svg.clientWidth : 1; svg.style.setProperty('--k', kk);
+    $$('.mk').forEach(m => m.setAttribute('transform', `translate(${m.dataset.x},${m.dataset.y}) scale(${Math.min(kk * 1.15, 1.6)})`));
+    placePop();
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function zoom(f, cx, cy){
+  cx ??= vb.x + vb.w / 2; cy ??= vb.y + vb.h / 2;
+  const w = Math.min(W * 1.2, Math.max(140, vb.w * f)), h = w * vb.h / vb.w;
+  setVB({ x: cx - w / 2, y: cy - h / 2, w, h });
+}
+$('#zin').onclick = () => zoom(.6); $('#zout').onclick = () => zoom(1.6); $('#zall').onclick = () => { closePop(); setVB(full); };
+svg.addEventListener('wheel', e => { e.preventDefault(); const p = svgPt(e); zoom(e.deltaY < 0 ? .8 : 1.25, p.x, p.y); }, { passive: false });
+function svgPt(e){ const r = svg.getBoundingClientRect(); return { x: vb.x + (e.clientX - r.left) / r.width * vb.w, y: vb.y + (e.clientY - r.top) / r.height * vb.h }; }
+/* arrastrar para mover */
+let drag = null;
+svg.addEventListener('pointerdown', e => { if (e.target.closest('.mk')) return; drag = { x: e.clientX, y: e.clientY, vb: { ...vb } }; svg.setPointerCapture(e.pointerId); svg.classList.add('drag'); });
+svg.addEventListener('pointermove', e => { if (!drag) return; const r = svg.getBoundingClientRect(); setVB({ ...drag.vb, x: drag.vb.x - (e.clientX - drag.x) / r.width * drag.vb.w, y: drag.vb.y - (e.clientY - drag.y) / r.height * drag.vb.h }, false); });
+svg.addEventListener('pointerup', () => { drag = null; svg.classList.remove('drag'); });
+svg.addEventListener('click', e => { const m = e.target.closest('.mk'); if (m) select(m.dataset.id, { fromMap: true }); });
+svg.addEventListener('keydown', e => { const m = e.target.closest('.mk'); if (m && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(m.dataset.id, { fromMap: true }); } });
+
+/* ---------- Tarjeta emergente ---------- */
+const pop = $('#pop');
+function popHTML(z){
+  const [c, t] = estadoTxt(z);
+  return `<button class="x" type="button" aria-label="Cerrar"><svg><use href="#i-x"/></svg></button><span class="badge2 ${c}">${t}</span><h3>${esc(z.nombre)}</h3><div class="psec">${esc(z.sector)}</div><p>${esc(detalleTxt(z))}</p>
+  <div class="ctas"><a class="btn b-verde" href="${CONFIG.telHref}"><svg><use href="#i-phone"/></svg>Llamar</a><a class="btn b-out" href="registro.html">Registrarme</a></div>`;
+}
+function placePop(){
+  if (!sel || !pop.classList.contains('on') || isMobile()) return;
+  const z = Z.find(x => x.id === sel), r = svg.getBoundingClientRect(), wr = $('#mapwrap').getBoundingClientRect();
+  let px = (P.x(z.lon) - vb.x) / vb.w * r.width + r.left - wr.left, py = (P.y(z.lat) - vb.y) / vb.h * r.height + r.top - wr.top;
+  const half = pop.offsetWidth / 2; px = Math.max(half + 10, Math.min(wr.width - half - 10, px));
+  pop.style.left = px + 'px'; pop.style.top = Math.max(pop.offsetHeight + 36, py) + 'px';
+}
+function closePop(){ pop.classList.remove('on'); }
+pop.addEventListener('click', e => { if (e.target.closest('.x')) { closePop(); $$('.mk.sel').forEach(m => m.classList.remove('sel')); } });
+
+/* ---------- Lista ---------- */
+const ICO = { completa: 'i-shield', parcial: 'i-clock' };
+function renderList(){
+  const q = norm($('#zq').value.trim());
+  const list = Z.filter(z => (!q || norm(z.nombre + ' ' + z.sector).includes(q)) &&
+    (filtro === 'todas' || (filtro === 'validar' ? !z.confirmada : z.confirmada && z.estado === filtro)));
+  const secs = [...new Set(list.map(z => z.sector))];
+  $('#zlist').innerHTML = list.length ? secs.map(s => {
+    const zs = list.filter(z => z.sector === s);
+    const open = q || filtro !== 'todas' || abiertos.has(s) || zs.some(z => z.id === sel);
+    return `<div class="zgrp${open ? ' open' : ''}"><button type="button" class="zsec" data-sec="${esc(s)}" aria-expanded="${open}"><span>${esc(s === 'Limítrofe' ? 'Zonas limítrofes' : s)}</span><span class="zc">${zs.length}<svg><use href="#i-arr"/></svg></span></button><div class="zbody">` + zs.map(z => {
+      const [c, t] = estadoTxt(z);
+      return `<button type="button" class="zi st-${z.estado}" data-id="${z.id}" aria-current="${z.id === sel}"><span class="zdot"><svg><use href="#${ICO[z.estado]}"/></svg></span><span><b>${esc(z.nombre)}</b><small>${t}</small></span><svg class="chev"><use href="#i-arr"/></svg></button>
+        <div class="zdet"><span class="badge2 ${c}">${t}</span><p style="margin-top:8px">${esc(detalleTxt(z))}</p><div class="ctas"><a class="btn b-verde" href="${CONFIG.telHref}"><svg><use href="#i-phone"/></svg>Llamar</a><button type="button" class="btn b-out" data-vermap="${z.id}"><svg><use href="#i-pin"/></svg>Ver en mapa</button></div></div>`;
+    }).join('') + '</div></div>';
+  }).join('') : `<p class="nores">No encontramos “${esc($('#zq').value)}”.<br>Llámanos al ${CONFIG.tel} y te confirmamos si llegamos a tu zona.</p>`;
+  // atenuar marcadores filtrados
+  const vis = new Set(list.map(z => z.id));
+  $$('.mk').forEach(m => m.style.opacity = vis.has(m.dataset.id) ? 1 : .18);
+}
+$('#zq').addEventListener('input', renderList);
+$('#filt').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; filtro = b.dataset.f; $$('#filt button').forEach(x => x.setAttribute('aria-pressed', x === b)); renderList(); });
+$('#zlist').addEventListener('click', e => {
+  const sh = e.target.closest('.zsec'); if (sh) { const k = sh.dataset.sec; abiertos.has(k) ? abiertos.delete(k) : abiertos.add(k); const g = sh.parentElement, on = !g.classList.contains('open'); g.classList.toggle('open', on); sh.setAttribute('aria-expanded', on); if (!on && $('#zq').value) {} return; }
+  const vm = e.target.closest('[data-vermap]'); if (vm) { showView('mapa'); select(vm.dataset.vermap, { force: true }); return; }
+  const b = e.target.closest('.zi'); if (b) select(b.dataset.id);
+});
+const isMobile = () => matchMedia('(max-width:980px)').matches;
+function select(id, { fromMap = false, force = false } = {}){
+  if (isMobile() && !fromMap && !force && sel === id) { sel = null; renderList(); return; }   // acordeón en móvil
+  sel = id; const z = Z.find(x => x.id === id);
+  $$('.mk').forEach(m => m.classList.toggle('sel', m.dataset.id === id));
+  renderList();
+  const li = $(`.zi[data-id="${id}"]`); if (li && fromMap && !isMobile()) li.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  if (!isMobile() || fromMap || force) {
+    const w = 300, h = w * (svg.clientHeight / svg.clientWidth || 1);
+    setVB({ x: P.x(z.lon) - w / 2, y: P.y(z.lat) - h * (isMobile() ? .25 : .62), w, h });
+    pop.innerHTML = popHTML(z); pop.classList.add('on'); placePop();
+  }
+  try { history.replaceState(null, '', '#' + id); } catch (e) {}
+}
+function showView(v){
+  $$('.mtoggle button').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === v));
+  $('#mapwrap').classList.toggle('on', v === 'mapa'); $('#panel').classList.toggle('off', v === 'mapa');
+  if (v === 'mapa') { $('.mtoggle').scrollIntoView({ block: 'start' }); requestAnimationFrame(() => { setVB(sel ? vb : full, false); placePop(); }); }
+}
+$$('.mtoggle button').forEach(b => b.onclick = () => showView(b.dataset.view));
+addEventListener('resize', placePop);
+
+(async () => {
+  Z = await DataService.listZonas(); drawMap(); renderList();
+  $('#covstats').innerHTML = [[Z.length, 'urbanizaciones'], [Z.filter(z => z.confirmada && z.estado === 'completa').length, 'con médico 24 h'], [Z.filter(z => z.confirmada && z.estado === 'parcial').length, 'con horario parcial']].map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join('');
+  const h = location.hash.slice(1);
+  if (h && Z.some(z => z.id === h)) { if (isMobile()) { select(h); $(`.zi[data-id="${h}"]`)?.scrollIntoView({ block: 'center' }); } else select(h); }
+})();
+</script>
+</body>
+</html>

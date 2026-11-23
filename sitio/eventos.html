@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0e683b">
+<meta name="description" content="PAM Baruta, Programa de Atención Médica de la Alcaldía de Baruta. Gratis, las 24 horas.">
+<title>Eventos · PAM Baruta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+</head>
+<body data-page="eventos">
+<div id="hdr"></div>
+<main>
+  <div class="ph wrap"><div class="phcard ph2"><svg class="hleaf" viewBox="0 0 100 100" aria-hidden="true"><use href="#leaf"/></svg>
+    <div class="ph2txt"><span class="pill"><i></i>Agenda PAM Baruta</span>
+    <h1>Eventos y <span class="mark">jornadas</span></h1>
+    <p>Jornadas de salud, charlas y operativos en tu comunidad, gratis para vecinos registrados.</p></div>
+    <div class="ph2stats" id="evstats"></div>
+  </div></div>
+  <section class="sec">
+    <div class="wrap">
+      <ol class="howto">
+        <li><span class="hn">1</span><span><b>Elige la jornada</b>que te interesa</span></li>
+        <li><span class="hn">2</span><span><b>Escribe tu cédula</b>debes estar registrado</span></li>
+        <li><span class="hn">3</span><span><b>Guarda tu código</b>y llévalo con tu cédula</span></li>
+      </ol>
+      <div class="toolbar"><div class="chips" id="cats" role="group" aria-label="Filtrar por tipo"></div></div>
+      <div class="evfeat" id="evfeat"></div>
+      <div class="evgrid ev3" id="evlist"></div>
+    </div>
+  </section>
+</main>
+<div id="ftr"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="mbox"><button class="mclose" type="button" aria-label="Cerrar" data-close><svg><use href="#i-x"/></svg></button><div id="mcontent"></div></div></div>
+<script src="assets/core.js"></script>
+<script>
+const modal = $('#modal');
+function openModal(html){ $('#mcontent').innerHTML = html; modal.classList.add('on'); document.body.style.overflow = 'hidden'; setTimeout(() => ($('#mcontent input') || $('.mclose')).focus(), 50); }
+function closeModal(){ modal.classList.remove('on'); document.body.style.overflow = ''; if (location.hash) history.replaceState(null, '', location.pathname); }
+modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('[data-close]')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('on')) closeModal(); });
+
+let EVENTOS = [], cat = 'Todos';
+const hoy = new Date().toISOString().slice(0, 10);
+function renderCats(){
+  const cats = ['Todos', ...new Set(EVENTOS.map(e => e.categoria))];
+  const n = c => c === 'Todos' ? EVENTOS.length : EVENTOS.filter(e => e.categoria === c).length;
+  $('#cats').innerHTML = cats.map(c => `<button type="button" data-c="${esc(c)}" aria-pressed="${c === cat}"><svg><use href="#${c === 'Todos' ? 'i-cal' : (CAT_EV[c] || 'i-cal')}"/></svg>${esc(c)}<em>${n(c)}</em></button>`).join('');
+}
+$('#cats').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { cat = b.dataset.c; renderCats(); render(); } });
+function render(){
+  const list = EVENTOS.filter(e => cat === 'Todos' || e.categoria === cat);
+  const prox = list.filter(e => e.fecha >= hoy), pas = list.filter(e => e.fecha < hoy);
+  const f = prox[0];
+  $('#evfeat').innerHTML = f ? evCard(f, { featured: true }) : '';
+  const rest = prox.slice(1);
+  $('#evlist').innerHTML = (rest.length ? `<div class="mhead">Más jornadas</div>` + rest.map(e => evCard(e)).join('') : '')
+    + (pas.length ? `<div class="mhead">Eventos pasados</div>` + pas.map(e => evCard(e)).join('') : '')
+    + (!list.length ? `<p class="empty" style="grid-column:1/-1">${EVENTOS.length ? 'No hay eventos en esta categoría por ahora.' : 'Pronto anunciaremos nuevas jornadas.'}</p>` : '');
+  const st = [[EVENTOS.filter(e => e.fecha >= hoy).length, 'jornadas próximas'], [EVENTOS.reduce((a, e) => a + (e.cupos ? Math.max(0, e.cupos - e.inscritos) : 0), 0), 'cupos disponibles'], ['0 Bs.', 'para el vecino']];
+  $('#evstats').innerHTML = st.map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join('');
+  reveal();
+}
+['#evlist', '#evfeat'].forEach(s => $(s).addEventListener('click', e => { const b = e.target.closest('[data-ins]'); if (b) inscripcion(b.dataset.ins); }));
+
+function inscripcion(id){
+  const ev = EVENTOS.find(x => x.id === id); if (!ev) return;
+  openModal(`<span class="chip"><i></i>${esc(ev.categoria)}</span><h2 id="mtitle">${esc(ev.titulo)}</h2>
+    <p class="muted" style="margin-bottom:18px">${fechaLarga(ev.fecha)} · ${hora12(ev.hora)} · ${esc(ev.lugar)}</p>
+    <form id="insf" novalidate>
+      <div class="field"><label for="idoc">Cédula de identidad</label><input type="radio" name="itipo" id="it1" value="NATIONAL_ID" checked hidden>
+        <input type="text" id="idoc" inputmode="numeric" placeholder="Solo números, ej. 12345678"><div class="err">Escribe solo los números de la cédula (6 a 9 dígitos).</div></div>
+      <div class="field"><label for="itel">Teléfono para recordatorios <span class="opt">(opcional)</span></label><input type="tel" id="itel" placeholder="0414 123 4567"><div class="err">Escribe un teléfono de 11 dígitos.</div></div>
+      <button class="btn b-noche" type="submit" style="width:100%">Confirmar inscripción</button>
+    </form><div id="insr"></div>`);
+  $('#insf').addEventListener('input', e => e.target.closest('.field')?.classList.remove('bad'));
+  $('#insf').addEventListener('submit', async e => {
+    e.preventDefault();
+    const tipo = $('[name=itipo]:checked').value, doc = $('#idoc').value, tel = $('#itel').value;
+    let bad = false;
+    if (!Tokens.validDoc(tipo, doc)) { $('#idoc').closest('.field').classList.add('bad'); bad = true; }
+    if (tel.trim() && ![11, 12].includes(tel.replace(/\D/g, '').length)) { $('#itel').closest('.field').classList.add('bad'); bad = true; }
+    if (bad) return;
+    const r = await DataService.inscribir(id, { tipo_documento: tipo, nro_documento: doc, telefono: tel });
+    const nom = r.nombre ? r.nombre.split(' ')[0].toLowerCase().replace(/^./, c => c.toUpperCase()) : '';
+    const R = {
+      ok: `<div class="result ok"><h3>¡Listo, ${esc(nom)}! Estás inscrito</h3><p>Guarda tu código de inscripción y llévalo el día del evento con tu cédula.</p>
+        <div class="tok" style="margin-top:12px"><span><small>Código de inscripción</small><code>${r.token}</code></span><button type="button" onclick="copyText('${r.token}')">Copiar</button></div></div>`,
+      ya_inscrito: `<div class="result ok"><h3>Ya estabas inscrito</h3><p>Tu código de inscripción es:</p><div class="tok" style="margin-top:12px"><span><small>Código de inscripción</small><code>${r.token}</code></span><button type="button" onclick="copyText('${r.token}')">Copiar</button></div></div>`,
+      no_registrado: `<div class="result warn"><h3>Esta cédula no está registrada</h3><p>Los eventos son para vecinos afiliados a PAM Baruta. Regístrate gratis y luego vuelve a inscribirte.</p><div class="ctas" style="margin-top:14px"><a class="btn b-hoja" href="registro.html">Registrarme ahora</a></div></div>`,
+      sin_cupos: `<div class="result warn"><h3>Se agotaron los cupos</h3><p>Lo sentimos, este evento ya no tiene cupos disponibles. Revisa los próximos eventos.</p></div>`
+    }[r.estado];
+    if (r.estado === 'ok' || r.estado === 'ya_inscrito') $('#insf').remove();
+    $('#insr').innerHTML = R;
+    if (r.estado === 'ok') { EVENTOS = await DataService.listEventos(); render(); }
+  });
+}
+(async () => {
+  EVENTOS = await DataService.listEventos(); renderCats(); render();
+  const h = location.hash.slice(1); if (h && EVENTOS.some(e => e.id === h)) { document.getElementById(h)?.scrollIntoView({ block: 'center' }); inscripcion(h); }
+})();
+
+</script>
+</body>
+</html>

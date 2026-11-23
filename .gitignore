@@ -1,0 +1,17 @@
+# Dependencias y herramientas locales
+node_modules/
+herramientas/node_modules/
+.vercel/
+.env
+.env.*
+!.env.example
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Nunca subir claves ni accesos
+03_ACCESOS_Y_CLAVES.md
+*ACCESOS*
+supabase/.temp/
+supabase/.branches/

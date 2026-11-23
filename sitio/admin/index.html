@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#082e1b">
+<title>Panel admin · PAM Baruta</title>
+<link rel="icon" href="../img/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+body{background:var(--niebla);padding-bottom:0}
+.login{min-height:100vh;display:grid;place-items:center;padding:24px;background:#f3f3f0}
+.lbox{background:#fff;border-radius:32px;padding:38px;width:100%;max-width:440px;box-shadow:0 30px 70px rgba(0,0,0,.10);border:1px solid #e6e8e4}
+.lbox .logo{margin-bottom:26px}
+.lbox h1{font-size:1.6em;font-weight:800;margin-bottom:4px}
+.lbox .err{display:none}
+.lerr{display:none;background:#fdecea;color:#b3261e;border-radius:14px;padding:12px 14px;font-weight:700;font-size:.9em;margin-bottom:14px}
+.lerr.on{display:block}
+.pw{position:relative}.pw input{width:100%;padding-right:52px}.pw button{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;width:44px;height:44px;display:grid;place-items:center;color:var(--gris)}
+.pw button svg{width:22px;height:22px}
+.demo{margin-top:18px;font-size:.8em;color:var(--noche);background:#eef6e3;border-radius:12px;padding:10px 12px}
+
+.app{display:none;min-height:100vh;grid-template-columns:260px 1fr}
+.app.on{display:grid}
+.side{background:var(--noche);color:#cfe0c7;padding:24px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px}
+.side .logo b{color:#fff}.side .logo small{color:#9fbf98}
+.side .tag{font-size:.72em;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--hoja);margin:22px 12px 8px}
+.side button{display:flex;gap:12px;align-items:center;border:0;background:none;color:#cfe0c7;font-weight:600;padding:12px 14px;border-radius:14px;text-align:left;font-size:.95em}
+.side button svg{width:22px;height:22px;flex:none}
+.side button:hover{background:rgba(255,255,255,.06)}
+.side button[aria-current="true"]{background:var(--hoja);color:var(--noche)}
+.side .bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.1);padding-top:12px}
+.side a.view{display:flex;gap:12px;align-items:center;color:#cfe0c7;text-decoration:none;padding:12px 14px;font-weight:600;font-size:.95em}
+.side a.view svg{width:22px;height:22px}
+.mainp{padding:32px 36px 60px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+.top h1{font-size:1.8em;font-weight:800}
+.top .whoami{font-size:.88em;color:var(--gris)}
+.mainp section{padding:0}
+.view-p{display:none}.view-p.on{display:block;animation:fade .25s}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:24px}
+.kpi{background:#fff;border-radius:24px;padding:22px 24px;display:flex;gap:16px;align-items:center}
+.kpi .ic{width:54px;height:54px;border-radius:18px;background:var(--menta);display:grid;place-items:center;flex:none}
+.kpi .ic svg{width:28px;height:28px;color:var(--verde)}
+.kpi b{display:block;font-size:2em;font-weight:800;line-height:1}
+.kpi span{color:var(--gris);font-size:.88em;font-weight:600}
+.panel{background:#fff;border-radius:24px;padding:24px;margin-bottom:22px}
+.panel h2{font-size:1.15em;font-weight:800;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.tools .searchbox{margin:0;flex:1;min-width:220px}
+.btn.sm{min-height:44px;padding:10px 18px;font-size:.9em}
+.tbl{width:100%;overflow:auto;border:1px solid var(--linea);border-radius:16px}
+table{border-collapse:collapse;width:100%;font-size:.88em;min-width:640px}
+th{background:var(--niebla);text-align:left;font-weight:800;padding:12px 14px;white-space:nowrap;position:sticky;top:0}
+td{padding:12px 14px;border-top:1px solid var(--linea);vertical-align:top}
+tbody tr.click{cursor:pointer}tbody tr.click:hover{background:#f8fbf5}
+code.t{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--verde);font-size:.92em;white-space:nowrap}
+.badge{display:inline-block;border-radius:999px;padding:3px 10px;font-size:.78em;font-weight:800}
+.b-pub{background:var(--menta);color:var(--verde)}.b-bor{background:#eee;color:#555}
+.rowi{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:16px 0;border-top:1px solid var(--linea)}
+.rowi:first-child{border-top:0}
+.rowi h3{font-size:1.05em;font-weight:800}
+.rowi p{color:var(--gris);font-size:.88em}
+.acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.ib{border:2px solid var(--linea);background:#fff;border-radius:12px;height:42px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.85em;color:var(--tinta)}
+.ib svg{width:18px;height:18px}
+.ib.danger{color:#b3261e}.ib.danger.confirm{background:#b3261e;color:#fff;border-color:#b3261e}
+.mbox.wide{max-width:860px}
+.dgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.dgrid section{border:1px solid var(--linea);border-radius:18px;padding:16px 18px}
+.dgrid h4{color:var(--verde);font-size:.92em;margin-bottom:8px}
+.dgrid dl{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:.88em}
+.dgrid dt{color:var(--gris)}.dgrid dd{font-weight:600;word-break:break-word}
+.imgup{display:grid;grid-template-columns:160px 1fr;gap:16px;align-items:start}
+.imgprev{width:160px;aspect-ratio:1;border-radius:18px;overflow:hidden;background:var(--niebla);display:grid;place-items:center;color:var(--gris);font-weight:700;font-size:.85em;border:2px dashed var(--linea)}
+.imgprev img{width:100%;height:100%;object-fit:cover}
+.imgbtns{display:grid;gap:10px;justify-items:start}
+.b-ig{background:linear-gradient(90deg,#f58529,#dd2a7b,#8134af);color:#fff}
+@media(max-width:600px){.imgup{grid-template-columns:1fr}}
+.avprev{display:flex;gap:12px;align-items:flex-start;border:2px solid var(--linea);border-radius:18px;padding:12px;min-height:62px}
+.avprev .nic{width:42px;height:42px;border-radius:14px;background:var(--menta);display:grid;place-items:center;flex:none}.avprev .nic svg{width:22px;height:22px;color:var(--verde)}
+.avprev b{display:block;font-weight:800}.avprev span span{display:block;color:var(--gris);font-size:.9em}
+.conn{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-radius:14px;padding:10px 14px;font-size:.88em;margin-bottom:16px;color:#082e1b}
+.conn svg{width:20px;height:20px;flex:none;color:#0e683b}.conn span{flex:1;min-width:200px}
+.conn.on{background:#eef6e3}.conn.off{background:#fff;border:1.5px dashed #83ba2a}
+.h2acts{display:flex;gap:8px;flex-wrap:wrap}
+.note{background:#eef6e3;border-radius:14px;padding:12px 14px;font-size:.86em;color:#082e1b;margin-bottom:16px}
+.mmenu{display:none}
+@media(max-width:900px){
+  .app.on{display:block}
+  .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;padding:12px}
+  .side .logo,.side .tag,.side .bottom{display:none}
+  .side button{padding:10px 12px;font-size:.85em}
+  .mainp{padding:20px 16px 60px}
+  .kpis{grid-template-columns:1fr 1fr}
+  .dgrid{grid-template-columns:1fr}
+  .rowi{grid-template-columns:1fr}.acts{justify-content:flex-start}
+  .mmenu{display:flex}
+}
+
+@media(max-width:900px){
+  .side{position:sticky;top:0;z-index:20;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:10px 12px;scrollbar-width:none}
+  .side::-webkit-scrollbar{display:none}
+  .side button{flex:none;white-space:nowrap;background:rgba(255,255,255,.06)}
+  .top{margin-bottom:16px}.top h1{font-size:1.5em}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:14px;gap:10px;min-width:0}.kpi .ic{width:42px;height:42px;border-radius:14px}.kpi .ic svg{width:22px;height:22px}
+  .kpi b{font-size:1.5em}.kpi span{font-size:.8em}
+  .panel{padding:16px;border-radius:20px}
+  #regs,#lastRegs{display:block}
+  .tbl:has(#regs),.tbl:has(#lastRegs){border:0;overflow:visible}
+  .tbl:has(#regs) table,.tbl:has(#lastRegs) table{min-width:0}
+  .tbl:has(#regs) thead,.tbl:has(#lastRegs) thead{display:none}
+  #regs tr,#lastRegs tr{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;border:2px solid var(--linea);border-radius:18px;padding:14px;margin-bottom:10px}
+  #regs td,#lastRegs td{border:0;padding:0;font-size:.92em}
+  #regs td::before,#lastRegs td::before{content:attr(data-l);display:block;font-size:.72em;font-weight:800;color:var(--gris);text-transform:uppercase;letter-spacing:.04em}
+  #regs td.tdn,#lastRegs td.tdn{grid-column:1/-1;font-weight:900;font-size:1.05em;order:-1}
+  #regs td.tdn::before,#lastRegs td.tdn::before{display:none}
+  #regs td[colspan],#lastRegs td[colspan]{grid-column:1/-1}
+  #regs td[colspan]::before,#lastRegs td[colspan]::before{display:none}
+  .lbox{padding:26px 20px}
+  .mbox{padding:22px 18px}
+  input[type=time],input[type=date]{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div class="login" id="login">
+  <form class="lbox" id="lform" novalidate>
+    <div class="logo"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50" fill="#0e683b"/><use href="#leaf" x="18" y="16" width="64" height="64" style="color:#83ba2a"/></svg><span><b>PAM <span>Baruta</span></b><small>Panel administrativo</small></span></div>
+    <h1>Iniciar sesión</h1>
+    <p class="muted" style="margin-bottom:22px">Acceso solo para el equipo de PAM Baruta.</p>
+    <div class="lerr" id="lerr" role="alert">Usuario o clave incorrectos.</div>
+    <div class="field"><label for="lu">Usuario</label><input type="text" id="lu" autocomplete="username" autocapitalize="off"></div>
+    <div class="field"><label for="lp">Clave</label><div class="pw"><input type="password" id="lp" autocomplete="current-password"><button type="button" id="eye" aria-label="Mostrar clave"><svg><use href="#i-eye"/></svg></button></div></div>
+    <button class="btn b-noche" type="submit" style="width:100%"><svg><use href="#i-login"/></svg>Entrar</button>
+    <p class="demo"><strong>Modo demo:</strong> el acceso se valida en el navegador. Antes de publicar, Sistemas debe conectar el login a su servidor.</p>
+  </form>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app" id="app">
+  <aside class="side">
+    <div class="logo"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50" fill="#0e683b"/><use href="#leaf" x="18" y="16" width="64" height="64" style="color:#83ba2a"/></svg><span><b>PAM <span>Baruta</span></b><small>Panel administrativo</small></span></div>
+    <div class="tag">Menú</div>
+    <button data-v="resumen" aria-current="true"><svg><use href="#i-chart"/></svg>Resumen</button>
+    <button data-v="registros"><svg><use href="#i-users"/></svg>Registros</button>
+    <button data-v="eventos"><svg><use href="#i-cal"/></svg>Eventos</button>
+    <button data-v="tips"><svg><use href="#i-bulb"/></svg>Tips de salud</button>
+    <button data-v="avisos"><svg><use href="#i-bell"/></svg>Avisos</button>
+    <button data-v="cobertura"><svg><use href="#i-pin"/></svg>Zonas</button>
+    <button data-v="signo"><svg><use href="#i-export"/></svg>Exportar a Signo</button>
+    <div class="bottom">
+      <a class="view" href="../index.html"><svg><use href="#i-eye"/></svg>Ver sitio público</a><a class="view" href="../movil.html"><svg><use href="#i-phone"/></svg>Vista móvil</a>
+      <button id="logout"><svg><use href="#i-logout"/></svg>Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="mainp">
+    <div class="top"><div><h1 id="vtitle">Resumen</h1><div class="whoami">Sesión: administrador</div></div>
+      <button class="btn b-linea sm mmenu" id="logout2"><svg><use href="#i-logout"/></svg>Salir</button></div>
+    <div class="conn" id="conn" hidden></div>
+
+    <!-- Resumen -->
+    <section class="view-p on" id="v-resumen">
+      <div class="kpis" id="kpis"></div>
+      <div class="panel"><h2>Últimos registros</h2><div class="tbl"><table><thead><tr><th>Fecha</th><th>Titular</th><th>Documento</th><th>Sector</th><th>Familiares</th></tr></thead><tbody id="lastRegs"></tbody></table></div></div>
+      <div class="panel"><h2>Próximos eventos</h2><div id="nextEv"></div></div>
+    </section>
+
+    <!-- Registros -->
+    <section class="view-p" id="v-registros">
+      <div class="panel">
+        <div class="tools"><div class="searchbox"><svg><use href="#i-search"/></svg><input type="text" id="rq" placeholder="Buscar por nombre, documento, código o sector"></div>
+          <button class="btn b-linea sm" id="copyRegs"><svg><use href="#i-copy"/></svg>Copiar tabla</button></div>
+        <div class="tbl"><table><thead><tr><th>Fecha</th><th>Titular</th><th>Documento</th><th>Teléfono</th><th>Sector</th><th>Familiares</th><th>Código afiliado</th><th>Código registro</th></tr></thead><tbody id="regs"></tbody></table></div>
+        <p class="muted" style="margin-top:12px;font-size:.85em">Toca una fila para ver el registro completo, incluidos los datos de salud.</p>
+      </div>
+    </section>
+
+    <!-- Eventos -->
+    <section class="view-p" id="v-eventos">
+      <div class="panel"><h2>Eventos <button class="btn b-hoja sm" id="newEv"><svg><use href="#i-add"/></svg>Nuevo evento</button></h2><div id="evs"></div></div>
+    </section>
+
+    <!-- Tips -->
+    <section class="view-p" id="v-tips">
+      <div class="panel"><h2>Tips de salud <button class="btn b-hoja sm" id="newTip"><svg><use href="#i-add"/></svg>Nuevo tip</button></h2><div id="tipsl"></div></div>
+    </section>
+
+    <!-- Avisos -->
+    <section class="view-p" id="v-avisos">
+      <div class="panel"><h2>Enviar un aviso</h2>
+        <div class="note">Los avisos aparecen en la campana del sitio y como mensaje emergente. Cuando el sitio esté publicado en pambaruta.com, también llegarán como notificación al teléfono de quien los active.<br><strong>Automáticos:</strong> el sistema ya avisa solo cuando publicas una jornada, cambias su fecha, hora o lugar, la cancelas o publicas un tip.</div>
+        <form id="avf" novalidate>
+          <div class="field"><label for="a_t">Título</label><input type="text" id="a_t" maxlength="80" placeholder="Ej. Jornada suspendida por lluvia" data-req><div class="err">Escribe el título.</div></div>
+          <div class="field"><label for="a_m">Mensaje <span class="opt">(corto y claro)</span></label><textarea id="a_m" maxlength="240" data-req placeholder="Ej. La jornada de Santa Fe se pasa al sábado 13 a las 8:00 am."></textarea><div class="err">Escribe el mensaje.</div></div>
+          <div class="g2">
+            <div class="field"><label for="a_l">Al tocar el aviso, abrir…</label><select id="a_l"><option value="index.html">Inicio</option><option value="eventos.html">Eventos</option><option value="tips.html">Tips de salud</option><option value="cobertura.html">Zonas</option><option value="registro.html">Registro</option></select></div>
+            <div class="field"><span class="flabel">Vista previa</span><div class="avprev" id="avprev"><span class="nic"><svg><use href="#i-bell"/></svg></span><span><b>Título del aviso</b><span>Mensaje del aviso</span></span></div></div>
+          </div>
+          <button class="btn b-noche" type="submit"><svg><use href="#i-bell"/></svg>Publicar aviso</button>
+        </form>
+      </div>
+      <div class="panel"><h2>Avisos enviados</h2><div id="avl"></div></div>
+    </section>
+
+    <!-- Cobertura -->
+    <section class="view-p" id="v-cobertura">
+      <div class="panel"><h2>Zonas <a class="btn b-linea sm" href="../cobertura.html"><svg><use href="#i-eye"/></svg>Ver mapa público</a></h2>
+        <div class="note">Fuente: <strong>Zonas_Cobertura_Baruta.xlsx</strong>. La columna “Texto público” es lo que ven los vecinos; la “Nota operativa” es la observación original y solo se ve aquí. Las ubicaciones del mapa son aproximadas.</div>
+        <div class="tools"><div class="searchbox"><svg><use href="#i-search"/></svg><input type="text" id="cq" placeholder="Buscar urbanización o sector"></div></div>
+        <div class="tbl"><table><thead><tr><th>N°</th><th>Urbanización</th><th>Sector</th><th>Estado</th><th>Texto público</th><th>Nota operativa</th></tr></thead><tbody id="covt"></tbody></table></div></div>
+    </section>
+
+    <!-- Signo -->
+    <section class="view-p" id="v-signo">
+      <div class="panel">
+        <h2>Carga masiva para Signo <span class="h2acts"><button class="btn b-linea sm" id="markSigno" hidden><svg><use href="#i-check"/></svg>Marcar como cargadas</button><button class="btn b-noche sm" id="copySigno"><svg><use href="#i-copy"/></svg>Copiar para Excel</button></span></h2>
+        <div class="note" id="signoNote"></div>
+        <p class="muted" style="margin-bottom:14px;font-size:.9em">Copia la tabla y pégala en la celda A2 de la pestaña <strong>DATOS</strong> de la plantilla de Signo. Una fila por persona (titular y familiares), con el último registro y en el formato exigido.</p>
+        <div class="tbl"><table id="signoT"></table></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="mbox" id="mbox"><button class="mclose" type="button" aria-label="Cerrar" data-close><svg><use href="#i-x"/></svg></button><div id="mcontent"></div></div></div>
+
+<script src="../assets/core.js"></script>
+<script>
+/* ---------- Sesión ---------- */
+const showApp = () => { $('#login').style.display = 'none'; $('#app').classList.add('on'); show('resumen'); };
+$('#eye').onclick = () => { const p = $('#lp'); p.type = p.type === 'password' ? 'text' : 'password'; };
+$('#lform').addEventListener('submit', async e => {
+  e.preventDefault();
+  let ok = false;
+  try { ok = await DataService.login($('#lu').value, $('#lp').value); } catch (err) { $('#lerr').textContent = 'No se pudo iniciar sesión en este navegador. Intenta de nuevo.'; }
+  if (ok) { $('#lerr').classList.remove('on'); $('#lp').value = ''; showApp(); }
+  else { $('#lerr').classList.add('on'); $('#lp').select(); }
+});
+const salir = () => { DataService.logout(); location.reload(); };
+$('#logout').onclick = salir; $('#logout2').onclick = salir;
+
+/* ---------- Navegación ---------- */
+const TITLES = { resumen: 'Resumen', registros: 'Registros', eventos: 'Eventos', tips: 'Tips de salud', avisos: 'Avisos', cobertura: 'Zonas', signo: 'Exportar a Signo' };
+function show(v){
+  $$('.side [data-v]').forEach(b => b.setAttribute('aria-current', b.dataset.v === v));
+  $$('.view-p').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
+  $('#vtitle').textContent = TITLES[v];
+  ({ resumen: rResumen, registros: rRegs, eventos: rEvs, tips: rTips, avisos: rAv, cobertura: rCov, signo: rSigno })[v]();
+}
+$$('.side [data-v]').forEach(b => b.onclick = () => show(b.dataset.v));
+
+/* ---------- Modal ---------- */
+const modal = $('#modal');
+function openModal(html, wide){ $('#mcontent').innerHTML = html; $('#mbox').classList.toggle('wide', !!wide); modal.classList.add('on'); document.body.style.overflow = 'hidden'; }
+function closeModal(){ modal.classList.remove('on'); document.body.style.overflow = ''; }
+modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('[data-close]')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+const fdt = iso => { const d = new Date(iso); return d.toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + d.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' }); };
+const fd = s => { if (!s) return ''; const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`; };
+const docTxt = (t, n) => (t === 'PASSPORT' ? 'Pas. ' : 'C.I. ') + n;
+const PAR = { SPOUSE: 'Cónyuge', CHILD: 'Hijo/a', PARENTS: 'Padre/madre', IN_LAW: 'Suegro/a', OTHERS: 'Otro' };
+const tsv = rows => rows.map(r => r.map(c => String(c ?? '').replace(/[\t\n]/g, ' ')).join('\t')).join('\n');
+/* Borrado con doble toque (las ventanas de confirmación del navegador no están disponibles aquí) */
+function confirmDelete(btn, fn){
+  if (btn.classList.contains('confirm')) return fn();
+  btn.classList.add('confirm'); btn.lastChild.textContent = '¿Seguro?';
+  setTimeout(() => { btn.classList.remove('confirm'); btn.lastChild.textContent = 'Eliminar'; }, 3000);
+}
+
+/* ---------- Resumen ---------- */
+async function rResumen(){
+  const st = await DataService.resumen();
+  const ev = await DataService.listEventos({ soloPublicados: false }), hoy = new Date().toISOString().slice(0, 10);
+  const K = [['i-user', st.titulares, 'Titulares'], ['i-users', st.familiares, 'Familiares'], ['i-doc', st.registros, 'Registros recibidos'],
+             ['i-cal', ev.filter(e => e.fecha >= hoy && e.estado === 'publicado').length, 'Eventos próximos'], ['i-list', st.inscripciones, 'Inscripciones a eventos'], ['i-bulb', st.tipsPublicados, 'Tips publicados']];
+  $('#kpis').innerHTML = K.map(([i, n, l]) => `<div class="kpi"><span class="ic"><svg><use href="#${i}"/></svg></span><span><b>${n}</b><span>${l}</span></span></div>`).join('');
+  const regs = (await DataService.listRegistros()).slice(0, 5);
+  $('#lastRegs').innerHTML = regs.length ? regs.map(r => `<tr class="click" data-r="${r.token}"><td data-l="Fecha">${fdt(r.fecha)}</td><td data-l="Titular" class="tdn">${esc(r.datos.nombre + ' ' + r.datos.apellidos)}</td><td data-l="Documento">${docTxt(r.datos.tipo_documento, r.datos.nro_documento)}</td><td data-l="Sector">${esc(r.datos.sector)}</td><td data-l="Familiares">${r.datos.dependientes.length}</td></tr>`).join('') : '<tr><td colspan="5" class="muted">Aún no hay registros.</td></tr>';
+  const nx = ev.filter(e => e.fecha >= hoy).slice(0, 4);
+  $('#nextEv').innerHTML = nx.length ? nx.map(e => `<div class="rowi"><div><h3>${esc(e.titulo)}</h3><p>${fechaLarga(e.fecha)} · ${hora12(e.hora)} · ${esc(e.lugar)}</p></div><div class="acts"><span class="badge b-pub">${e.inscritos}${e.cupos ? ' / ' + e.cupos : ''} inscritos</span></div></div>`).join('') : '<p class="muted">No hay eventos próximos.</p>';
+}
+document.addEventListener('click', e => { const tr = e.target.closest('tr[data-r]'); if (tr) verRegistro(tr.dataset.r); });
+
+/* ---------- Registros ---------- */
+async function rRegs(){
+  const q = $('#rq').value.trim().toLowerCase(), regs = await DataService.listRegistros();
+  const list = regs.filter(r => !q || [r.datos.nombre, r.datos.apellidos, r.datos.nro_documento, r.datos.sector, r.token, r.userToken, ...r.datos.dependientes.map(d => d.nombre + ' ' + d.apellidos + ' ' + d.nro_documento)].join(' ').toLowerCase().includes(q));
+  $('#regs').innerHTML = list.length ? list.map(r => `<tr class="click" data-r="${r.token}"><td data-l="Fecha">${fdt(r.fecha)}</td><td data-l="Titular" class="tdn">${esc(r.datos.nombre + ' ' + r.datos.apellidos)}</td><td data-l="Documento">${docTxt(r.datos.tipo_documento, r.datos.nro_documento)}</td><td data-l="Teléfono">${esc(r.datos.telefono)}</td><td data-l="Sector">${esc(r.datos.sector)}</td><td data-l="Familiares">${r.datos.dependientes.length}</td><td data-l="Código afiliado"><code class="t">${r.userToken}</code></td><td data-l="Código registro"><code class="t">${r.token}</code></td></tr>`).join('')
+    : `<tr><td colspan="8" class="muted">${q ? 'Sin resultados para la búsqueda.' : 'Aún no hay registros.'}</td></tr>`;
+  rRegs.list = list;
+}
+$('#rq').addEventListener('input', rRegs);
+$('#copyRegs').onclick = () => copyText(tsv([['Fecha', 'Nombres', 'Apellidos', 'Tipo doc', 'Documento', 'Teléfono', 'Correo', 'Sector', 'Familiares', 'Código afiliado', 'Código registro'],
+  ...(rRegs.list || []).map(r => [fdt(r.fecha), r.datos.nombre, r.datos.apellidos, r.datos.tipo_documento, r.datos.nro_documento, r.datos.telefono, r.datos.correo, r.datos.sector, r.datos.dependientes.length, r.userToken, r.token])]));
+async function verRegistro(tok){
+  const r = (await DataService.listRegistros()).find(x => x.token === tok); if (!r) return; const d = r.datos;
+  const sec = (t, rows) => `<section><h4>${t}</h4><dl>${rows.filter(([, v]) => v).map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></section>`;
+  openModal(`<h2>${esc(d.nombre + ' ' + d.apellidos)}</h2><p class="muted" style="margin-bottom:16px">Registrado el ${fdt(r.fecha)} · lo llenó: ${esc(d.para)}</p>
+    <div class="dgrid">
+      ${sec('Códigos', [['Afiliado', r.userToken], ['Registro', r.token]])}
+      ${sec('Datos personales', [['Documento', docTxt(d.tipo_documento, d.nro_documento)], ['Nacimiento', fd(d.nacimiento)], ['Sexo', d.sexo], ['Teléfono', d.telefono], ['Correo', d.correo]])}
+      ${sec('Dirección', [['Dirección', d.direccion], ['Urbanización', d.sector]])}
+      ${sec('Contacto de emergencia', [['Nombre', d.em_nombre + ' ' + d.em_apellidos], ['Teléfono', d.em_telefono]])}
+      ${sec('Datos de salud', [['Fuma', d.fuma + (d.fuma_unidades ? ` (${d.fuma_unidades}/día)` : '')], ['Alcohol', d.alcohol + (d.alcohol_frec ? ` (${d.alcohol_frec})` : '')], ['Alergia', d.alergia + (d.alergia_cual ? `: ${d.alergia_cual}` : '')], ['Medicamento', d.medicamento + (d.medicamento_cual ? `: ${d.medicamento_cual}` : '')], ['Patologías', [d.patologias, d.patologias_otras].filter(Boolean).join(', ')], ['Único plan', d.unico_plan], ['Lo más importante', d.importante], ['Cómo nos conoció', d.conocio]])}
+      <section><h4>Familiares a cargo (${d.dependientes.length})</h4>${d.dependientes.length ? '<dl>' + d.dependientes.map(p => `<dt>${PAR[p.parentesco] || ''}</dt><dd>${esc(p.nombre + ' ' + p.apellidos)}<br>${docTxt(p.tipo_documento, p.nro_documento)} · ${fd(p.nacimiento)}<br><code class="t">${p.token || ''}</code></dd>`).join('') + '</dl>' : '<p class="muted">Ninguno</p>'}</section>
+    </div>`, true);
+}
+
+/* ---------- Eventos ---------- */
+const CATS_EV = ['Jornada de salud', 'Charla', 'Operativo', 'Vacunación', 'Actividad comunitaria'];
+async function rEvs(){
+  const ev = await DataService.listEventos({ soloPublicados: false });
+  $('#evs').innerHTML = ev.length ? ev.map(e => `<div class="rowi"><div><h3>${esc(e.titulo)} <span class="badge ${e.estado === 'publicado' ? 'b-pub' : 'b-bor'}">${e.estado === 'publicado' ? 'Publicado' : 'Borrador'}</span>${e.instagram ? ' <span class="badge b-ig">Instagram</span>' : ''}</h3>
+      <p>${esc(e.categoria)} · ${fechaLarga(e.fecha)} · ${hora12(e.hora)} · ${esc(e.lugar)} (${esc(e.sector)}) · <strong>${e.inscritos}${e.cupos ? ' / ' + e.cupos : ''} inscritos</strong></p></div>
+    <div class="acts"><button class="ib" data-ins="${e.id}"><svg><use href="#i-users"/></svg>Inscritos</button><button class="ib" data-ed="${e.id}"><svg><use href="#i-edit"/></svg>Editar</button><button class="ib danger" data-del="${e.id}"><svg><use href="#i-trash"/></svg>Eliminar</button></div></div>`).join('')
+    : '<p class="muted">No hay eventos. Crea el primero.</p>';
+  rEvs.list = ev;
+}
+$('#newEv').onclick = () => formEvento({});
+$('#evs').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const ev = rEvs.list.find(x => x.id === (b.dataset.ed || b.dataset.del || b.dataset.ins));
+  if (b.dataset.ed) formEvento(ev);
+  if (b.dataset.del) confirmDelete(b, async () => { await DataService.deleteEvento(ev.id); toast('Evento eliminado'); rEvs(); });
+  if (b.dataset.ins) {
+    const ins = await DataService.listInscritos(ev.id);
+    const rows = [['Fecha', 'Nombre', 'Documento', 'Teléfono', 'Código inscripción'], ...ins.map(i => [fdt(i.fecha), i.nombre, docTxt(i.tipo_documento, i.nro_documento), i.telefono, i.token])];
+    openModal(`<h2>Inscritos · ${esc(ev.titulo)}</h2><p class="muted" style="margin-bottom:14px">${ins.length}${ev.cupos ? ' de ' + ev.cupos : ''} cupos · ${fechaLarga(ev.fecha)}</p>
+      ${ins.length ? `<div class="tools"><button class="btn b-linea sm" id="cpIns"><svg><use href="#i-copy"/></svg>Copiar lista</button></div><div class="tbl"><table><thead><tr>${rows[0].map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map(r => `<tr>${r.map((c, i) => `<td>${i === 4 ? `<code class="t">${c}</code>` : esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : '<p class="muted">Aún no hay inscritos.</p>'}`, true);
+    $('#cpIns')?.addEventListener('click', () => copyText(tsv(rows)));
+  }
+});
+function formEvento(ev){
+  openModal(`<h2>${ev.id ? 'Editar evento' : 'Nuevo evento'}</h2>
+  <form id="evf" novalidate>
+    <div class="field"><label for="f_t">Título</label><input type="text" id="f_t" value="${esc(ev.titulo || '')}" data-req><div class="err">Escribe el título.</div></div>
+    <div class="g2">
+      <div class="field"><label for="f_c">Tipo</label><input type="text" id="f_c" list="catsEv" value="${esc(ev.categoria || 'Jornada de salud')}" data-req><datalist id="catsEv">${CATS_EV.map(c => `<option>${c}</option>`).join('')}</datalist><div class="err">Indica el tipo.</div></div>
+      <div class="field"><label for="f_f">Fecha</label><input type="date" id="f_f" value="${ev.fecha || ''}" data-req><div class="err">Indica la fecha.</div></div>
+      <div class="field"><label for="f_h">Hora de inicio</label><input type="time" id="f_h" value="${ev.hora || '08:00'}" data-req><div class="err">Indica la hora.</div></div>
+      <div class="field"><label for="f_fin">Hora de cierre <span class="opt">(opcional)</span></label><input type="time" id="f_fin" value="${ev.fin || ''}"></div>
+      <div class="field"><label for="f_l">Lugar</label><input type="text" id="f_l" value="${esc(ev.lugar || '')}" placeholder="Ej. Plaza Alfredo Sadel" data-req><div class="err">Indica el lugar.</div></div>
+      <div class="field"><label for="f_s">Urbanización / Sector</label><input type="text" id="f_s" value="${esc(ev.sector || '')}" data-req><div class="err">Indica el sector.</div></div>
+      <div class="field"><label for="f_cu">Cupos <span class="opt">(vacío = sin límite)</span></label><input type="number" min="1" id="f_cu" value="${ev.cupos || ''}"></div>
+      <div class="field"><label for="f_e">Estado</label><select id="f_e"><option value="publicado"${ev.estado !== 'borrador' ? ' selected' : ''}>Publicado (visible)</option><option value="borrador"${ev.estado === 'borrador' ? ' selected' : ''}>Borrador (oculto)</option></select></div>
+    </div>
+    <div class="field"><label for="f_ig">Enlace de Instagram <span class="opt">(opcional)</span></label><input type="text" id="f_ig" inputmode="url" placeholder="https://www.instagram.com/p/…" value="${esc(ev.instagram || '')}"><div class="err">Pega el enlace de una publicación o reel de Instagram (instagram.com/p/… o /reel/…).</div></div>
+    <div class="field"><span class="flabel">Imagen <span class="opt">(la del post de Instagram u otra)</span></span>
+      <div class="imgup"><div class="imgprev" id="f_prev">${ev.imagen ? `<img src="${ev.imagen}" alt="">` : '<span>Sin imagen</span>'}</div>
+        <div class="imgbtns"><label class="btn b-linea sm" for="f_file"><svg><use href="#i-add"/></svg>Subir imagen</label><input type="file" id="f_file" accept="image/*" hidden><button type="button" class="ib danger" id="f_rm"${ev.imagen ? '' : ' hidden'}><svg><use href="#i-trash"/></svg>Quitar</button>
+        <p class="muted" style="font-size:.82em">Instagram no deja copiar la imagen automáticamente: guárdala desde la publicación y súbela aquí.</p></div></div></div>
+    <div class="field"><label for="f_d">Descripción</label><textarea id="f_d" data-req placeholder="Qué se hará, qué deben llevar…">${esc(ev.descripcion || '')}</textarea><div class="err">Escribe una descripción.</div></div>
+    <button class="btn b-noche" type="submit" style="width:100%">${ev.id ? 'Guardar cambios' : 'Crear evento'}</button>
+  </form>`, true);
+  $('#evf').addEventListener('input', e => e.target.closest('.field')?.classList.remove('bad'));
+  let evImg = ev.imagen || ''; imgField('f_', v => evImg = v);
+  $('#evf').addEventListener('submit', async e => {
+    e.preventDefault();
+    let bad = null; $$('#evf [data-req]').forEach(i => { const ok = !!i.value.trim(); i.closest('.field').classList.toggle('bad', !ok); if (!ok && !bad) bad = i; });
+    if ($('#f_ig').value.trim() && !igValid($('#f_ig').value)) { $('#f_ig').closest('.field').classList.add('bad'); bad = $('#f_ig'); }
+    if (bad) return bad.focus();
+    await DataService.saveEvento({ instagram: $('#f_ig').value.trim(), imagen: evImg, id: ev.id, titulo: $('#f_t').value.trim(), categoria: $('#f_c').value.trim(), fecha: $('#f_f').value, hora: $('#f_h').value, fin: $('#f_fin').value,
+      lugar: $('#f_l').value.trim(), sector: $('#f_s').value.trim(), cupos: $('#f_cu').value ? +$('#f_cu').value : '', estado: $('#f_e').value, descripcion: $('#f_d').value.trim() });
+    closeModal(); toast(ev.id ? 'Evento actualizado' : 'Evento creado'); rEvs();
+  });
+}
+
+/* ---------- Imagen (Instagram) ---------- */
+function imgField(p, set){
+  $('#' + p + 'file').addEventListener('change', async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try { const d = await imgToDataURL(f); set(d); $('#' + p + 'prev').innerHTML = `<img src="${d}" alt="">`; $('#' + p + 'rm').hidden = false; }
+    catch (err) { toast('No se pudo leer la imagen. Prueba con un JPG o PNG.'); }
+  });
+  $('#' + p + 'rm').addEventListener('click', () => { set(''); $('#' + p + 'prev').innerHTML = '<span>Sin imagen</span>'; $('#' + p + 'rm').hidden = true; $('#' + p + 'file').value = ''; });
+}
+
+/* ---------- Tips ---------- */
+const CATS_TIP = ['Prevención', 'Adulto mayor', 'Cómo usar PAM', 'Primeros auxilios', 'Nutrición'];
+async function rTips(){
+  const t = await DataService.listTips({ soloPublicados: false });
+  $('#tipsl').innerHTML = t.length ? t.map(x => `<div class="rowi"><div><h3>${esc(x.titulo)} <span class="badge ${x.publicado ? 'b-pub' : 'b-bor'}">${x.publicado ? 'Publicado' : 'Borrador'}</span>${x.instagram ? ' <span class="badge b-ig">Instagram</span>' : ''}</h3><p>${esc(x.categoria)} · ${fd(x.fecha)} · ${esc(x.resumen)}</p></div>
+    <div class="acts"><button class="ib" data-ed="${x.id}"><svg><use href="#i-edit"/></svg>Editar</button><button class="ib danger" data-del="${x.id}"><svg><use href="#i-trash"/></svg>Eliminar</button></div></div>`).join('') : '<p class="muted">No hay tips. Crea el primero.</p>';
+  rTips.list = t;
+}
+$('#newTip').onclick = () => formTip({});
+$('#tipsl').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; const t = rTips.list.find(x => x.id === (b.dataset.ed || b.dataset.del));
+  if (b.dataset.ed) formTip(t);
+  if (b.dataset.del) confirmDelete(b, async () => { await DataService.deleteTip(t.id); toast('Tip eliminado'); rTips(); });
+});
+function formTip(t){
+  openModal(`<h2>${t.id ? 'Editar tip' : 'Nuevo tip'}</h2>
+  <form id="tf" novalidate>
+    <div class="field"><label for="t_t">Título</label><input type="text" id="t_t" value="${esc(t.titulo || '')}" data-req><div class="err">Escribe el título.</div></div>
+    <div class="g2">
+      <div class="field"><label for="t_c">Tema</label><input type="text" id="t_c" list="catsTip" value="${esc(t.categoria || 'Prevención')}" data-req><datalist id="catsTip">${CATS_TIP.map(c => `<option>${c}</option>`).join('')}</datalist><div class="err">Indica el tema.</div></div>
+      <div class="field"><label for="t_p">Estado</label><select id="t_p"><option value="1"${t.publicado !== false ? ' selected' : ''}>Publicado (visible)</option><option value="0"${t.publicado === false ? ' selected' : ''}>Borrador (oculto)</option></select></div>
+    </div>
+    <div class="field"><label for="t_r">Resumen <span class="opt">(una frase que se ve en la tarjeta)</span></label><input type="text" id="t_r" maxlength="140" value="${esc(t.resumen || '')}" data-req><div class="err">Escribe el resumen.</div></div>
+    <div class="field"><label for="t_x">Contenido <span class="opt">(deja una línea en blanco entre párrafos)</span></label><textarea id="t_x" style="min-height:200px" data-req>${esc(t.contenido || '')}</textarea><div class="err">Escribe el contenido.</div></div>
+    <div class="field"><label for="t_ig">Enlace de Instagram <span class="opt">(opcional)</span></label><input type="text" id="t_ig" inputmode="url" placeholder="https://www.instagram.com/p/…" value="${esc(t.instagram || '')}"><div class="err">Pega el enlace de una publicación o reel de Instagram (instagram.com/p/… o /reel/…).</div></div>
+    <div class="field"><span class="flabel">Imagen <span class="opt">(la del post de Instagram u otra)</span></span>
+      <div class="imgup"><div class="imgprev" id="t_prev">${t.imagen ? `<img src="${t.imagen}" alt="">` : '<span>Sin imagen</span>'}</div>
+        <div class="imgbtns"><label class="btn b-linea sm" for="t_file"><svg><use href="#i-add"/></svg>Subir imagen</label><input type="file" id="t_file" accept="image/*" hidden><button type="button" class="ib danger" id="t_rm"${t.imagen ? '' : ' hidden'}><svg><use href="#i-trash"/></svg>Quitar</button>
+        <p class="muted" style="font-size:.82em">Instagram no deja copiar la imagen automáticamente: guárdala desde la publicación y súbela aquí.</p></div></div></div>
+    <button class="btn b-noche" type="submit" style="width:100%">${t.id ? 'Guardar cambios' : 'Publicar tip'}</button>
+  </form>`, true);
+  $('#tf').addEventListener('input', e => e.target.closest('.field')?.classList.remove('bad'));
+  let tpImg = t.imagen || ''; imgField('t_', v => tpImg = v);
+  $('#tf').addEventListener('submit', async e => {
+    e.preventDefault();
+    let bad = null; $$('#tf [data-req]').forEach(i => { const ok = !!i.value.trim(); i.closest('.field').classList.toggle('bad', !ok); if (!ok && !bad) bad = i; });
+    if ($('#t_ig').value.trim() && !igValid($('#t_ig').value)) { $('#t_ig').closest('.field').classList.add('bad'); bad = $('#t_ig'); }
+    if (bad) return bad.focus();
+    await DataService.saveTip({ instagram: $('#t_ig').value.trim(), imagen: tpImg, id: t.id, titulo: $('#t_t').value.trim(), categoria: $('#t_c').value.trim(), resumen: $('#t_r').value.trim(), contenido: $('#t_x').value.trim(), publicado: $('#t_p').value === '1', fecha: t.fecha || new Date().toISOString().slice(0, 10) });
+    closeModal(); toast(t.id ? 'Tip actualizado' : 'Tip publicado'); rTips();
+  });
+}
+
+/* ---------- Avisos ---------- */
+const TIPO_AV = { evento: 'Nueva jornada', cambio: 'Cambio', cancelado: 'Cancelación', tip: 'Nuevo tip', aviso: 'Aviso manual' };
+async function rAv(){
+  const av = await DataService.listAvisos();
+  $('#avl').innerHTML = av.length ? av.map(a => `<div class="rowi"><div><h3>${esc(a.titulo)} <span class="badge ${a.tipo === 'aviso' ? 'b-pub' : 'b-bor'}">${TIPO_AV[a.tipo] || a.tipo}</span></h3><p>${esc(a.mensaje)} · ${fdt(a.fecha)}</p></div>
+    <div class="acts"><button class="ib danger" data-del="${a.id}"><svg><use href="#i-trash"/></svg>Eliminar</button></div></div>`).join('') : '<p class="muted">Aún no hay avisos.</p>';
+}
+$('#avl').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) confirmDelete(b, async () => { await DataService.deleteAviso(b.dataset.del); toast('Aviso eliminado'); rAv(); }); });
+const avPrev = () => { $('#avprev b').textContent = $('#a_t').value || 'Título del aviso'; $('#avprev span span').textContent = $('#a_m').value || 'Mensaje del aviso'; };
+$('#avf').addEventListener('input', e => { e.target.closest('.field')?.classList.remove('bad'); avPrev(); });
+$('#avf').addEventListener('submit', async e => {
+  e.preventDefault(); let bad = null;
+  $$('#avf [data-req]').forEach(i => { const ok = !!i.value.trim(); i.closest('.field').classList.toggle('bad', !ok); if (!ok && !bad) bad = i; });
+  if (bad) return bad.focus();
+  await DataService.crearAviso({ titulo: $('#a_t').value.trim(), mensaje: $('#a_m').value.trim(), link: $('#a_l').value });
+  $('#avf').reset(); avPrev(); toast('Aviso publicado'); rAv();
+});
+
+/* ---------- Cobertura ---------- */
+async function rCov(){
+  const q = ($('#cq').value || '').toLowerCase(), Z = await DataService.listZonas();
+  $('#covt').innerHTML = Z.filter(z => !q || (z.nombre + ' ' + z.sector).toLowerCase().includes(q)).map(z => `<tr><td>${z.id.slice(1)}</td><td><strong>${esc(z.nombre)}</strong></td><td>${esc(z.sector)}</td>
+    <td><span class="badge ${z.estado === 'completa' ? 'b-pub' : 'b-bor'}">${z.estado === 'completa' ? '24 horas' : 'Parcial'}</span>${z.confirmada ? '' : ' <span class="badge b-bor">Por confirmar</span>'}</td>
+    <td style="min-width:260px">${esc(z.detalle || 'Médico a domicilio y ambulancia las 24 horas.')}</td><td style="min-width:200px;color:var(--gris)">${esc(z.obs_interna)}</td></tr>`).join('');
+}
+$('#cq').addEventListener('input', rCov);
+
+/* ---------- Signo ---------- */
+async function rSigno(){
+  $('#signoT').innerHTML = '<tbody><tr><td class="muted">Cargando…</td></tr></tbody>';
+  const rows = await DataService.signoRows(), S = CONFIG.signo, remoto = PAM.Modo.remoto;
+  $('#signoNote').innerHTML = remoto
+    ? (PAM.RemoteData.supabase() ? `Estas filas salen de la tabla <strong>signo</strong> de Supabase (columnas A a O). El RIF, el nombre de la empresa y la vigencia se configuran en la tabla <strong>config</strong>.` : `Estas filas salen de la pestaña <strong>Signo</strong> de la hoja de Google (columnas A a O). El RIF, el nombre de la empresa y la vigencia se configuran en la pestaña <strong>Config</strong>.`)
+    : (S.rif_company ? `RIF: <strong>${esc(S.rif_company)}</strong> · Empresa: <strong>${esc(S.nombre_company)}</strong> · Vigencia: ${S.vigencia_meses} meses` :
+      `<strong>Falta el RIF de la póliza.</strong> Pídelo a Sistemas o a Operaciones y colócalo en la pestaña Config de la hoja de Google antes de cargar en Signo.`);
+  $('#signoT').innerHTML = `<thead><tr>${rows[0].map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.length > 1 ? rows.slice(1).map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="15" class="muted">Aún no hay registros para exportar.</td></tr>`}</tbody>`;
+  $('#markSigno').hidden = !remoto || rows.length < 2;
+}
+$('#copySigno').onclick = async () => { const rows = await DataService.signoRows(); if (rows.length < 2) return toast('No hay filas para copiar'); copyText(tsv(rows.slice(1))); };
+$('#markSigno').onclick = async () => { const n = await DataService.marcarSignoCargado(); toast(n ? `${n} filas marcadas como cargadas en Signo` : 'Todas las filas ya estaban marcadas'); };
+
+/* Conexión con Google Sheets: enlace a la hoja y aviso si esta vista no puede conectarse */
+PAM.Modo.decidir().then(remoto => {
+  const box = $('#conn'); if (!box) return;
+  const sb = PAM.RemoteData.supabase(), base = PAM.RemoteData.nombre();
+  if (remoto) box.innerHTML = sb ? `<svg><use href="#i-shield"/></svg><span>Conectado a <b>Supabase</b>. Cada registro se guarda en la base de datos.</span>`
+    : `<svg><use href="#i-shield"/></svg><span>Conectado a <b>Google Sheets</b>. Cada registro se guarda en la hoja.</span><a class="btn b-linea sm" href="${CONFIG.hojaUrl}">Abrir hoja</a>`;
+  else box.innerHTML = `<svg><use href="#i-info"/></svg><span><b>Vista de prueba:</b> ${PAM.RemoteData.configurado() ? 'esta vista no puede conectarse a ' + base : 'aún no está conectada a ' + base}. Los datos se guardan solo en este navegador.</span>`;
+  box.className = 'conn ' + (remoto ? 'on' : 'off'); box.hidden = false;
+});
+
+/* Abrir directo si ya hay sesión (al final, cuando todo está definido) */
+if (DataService.isAdmin()) showApp();
+</script>
+</body>
+</html>

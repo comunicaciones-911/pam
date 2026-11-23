@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0e683b">
+<meta name="description" content="PAM Baruta, Programa de Atención Médica de la Alcaldía de Baruta. Gratis, las 24 horas.">
+<title>Tips de salud · PAM Baruta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+</head>
+<body data-page="tips">
+<div id="hdr"></div>
+<main>
+  <div class="ph wrap"><div class="phcard ph2"><svg class="hleaf" viewBox="0 0 100 100" aria-hidden="true"><use href="#leaf"/></svg>
+    <div class="ph2txt"><span class="pill"><i></i>Consejos del equipo médico</span>
+    <h1>Tips de <span class="mark">salud</span></h1>
+    <p>Consejos sencillos para cuidarte a ti y a tu familia, escritos por los médicos de PAM Baruta.</p></div>
+    <div class="ph2stats" id="tpstats"></div>
+  </div></div>
+  <section class="sec">
+    <div class="wrap">
+      <div class="toolbar"><div class="searchbox"><svg><use href="#i-search"/></svg><label class="sr" for="q">Buscar tips</label><input type="text" id="q" placeholder="Buscar: tensión, medicamentos, calor…"></div>
+      <div class="chips" id="cats" role="group" aria-label="Filtrar por tema"></div></div>
+      <div id="tpfeat"></div>
+      <div class="tpgrid tp3" id="tips"></div>
+    </div>
+  </section>
+</main>
+<div id="ftr"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="mbox"><button class="mclose" type="button" aria-label="Cerrar" data-close><svg><use href="#i-x"/></svg></button><div id="mcontent"></div></div></div>
+<script src="assets/core.js"></script>
+<script>
+const modal = $('#modal');
+function openModal(html){ $('#mcontent').innerHTML = html; modal.classList.add('on'); document.body.style.overflow = 'hidden'; setTimeout(() => ($('#mcontent input') || $('.mclose')).focus(), 50); }
+function closeModal(){ modal.classList.remove('on'); document.body.style.overflow = ''; if (location.hash) history.replaceState(null, '', location.pathname); }
+modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('[data-close]')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('on')) closeModal(); });
+
+let TIPS = [], cat = 'Todos';
+const ICO = { 'Prevención': 'i-shield', 'Adulto mayor': 'i-hand', 'Cómo usar PAM': 'i-phone', 'Primeros auxilios': 'i-kit', 'Nutrición': 'i-heart' };
+function renderCats(){ const cats = ['Todos', ...new Set(TIPS.map(t => t.categoria))], n = c => c === 'Todos' ? TIPS.length : TIPS.filter(t => t.categoria === c).length; $('#cats').innerHTML = cats.map(c => `<button type="button" data-c="${esc(c)}" aria-pressed="${c === cat}"><svg><use href="#${c === 'Todos' ? 'i-bulb' : (ICO[c] || 'i-bulb')}"/></svg>${esc(c)}<em>${n(c)}</em></button>`).join(''); }
+$('#cats').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { cat = b.dataset.c; renderCats(); render(); } });
+$('#q').addEventListener('input', render);
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+function render(){
+  const q = norm($('#q').value.trim());
+  const list = TIPS.filter(t => (cat === 'Todos' || t.categoria === cat) && (!q || norm(t.titulo + ' ' + t.resumen + ' ' + t.contenido).includes(q)));
+  const f = !q && list.length > 1 ? list[0] : null, rest = f ? list.slice(1) : list;
+  $('#tpfeat').innerHTML = f ? `<button type="button" class="tpfeat rv${f.imagen ? ' has-img' : ''}" data-id="${f.id}" id="${f.id}">
+      <span class="tfmedia">${f.imagen ? `<img src="${f.imagen}" alt="">` : `<svg><use href="#${ICO[f.categoria] || 'i-bulb'}"/></svg>`}</span>
+      <span class="tftxt"><span class="tflab"><svg><use href="#i-star"/></svg>Consejo destacado · ${esc(f.categoria)}</span><h2>${esc(f.titulo)}</h2><p>${esc(f.resumen)}</p><span class="evbtn" style="align-self:flex-start">Leer consejo <span class="arr"><svg><use href="#i-arr"/></svg></span></span></span></button>` : '';
+  $('#tips').innerHTML = rest.length ? rest.map((t, i) => tipCard(t, i + 1)).join('') : (f ? '' : `<p class="empty" style="grid-column:1/-1">${TIPS.length ? 'No encontramos tips con esa búsqueda.' : 'Pronto publicaremos consejos de nuestros médicos.'}</p>`);
+  $('#tpstats').innerHTML = [[TIPS.length, 'consejos'], [new Set(TIPS.map(t => t.categoria)).size, 'temas'], ['24/7', 'médico al teléfono']].map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join('');
+  reveal();
+}
+['#tips', '#tpfeat'].forEach(s => $(s).addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b) abrir(b.dataset.id); }));
+function abrir(id){
+  const t = TIPS.find(x => x.id === id); if (!t) return;
+  openModal(`<span class="chip"><i></i>${esc(t.categoria)}</span><h2 id="mtitle">${esc(t.titulo)}</h2>
+    ${t.imagen ? `<div class="mimg"><img src="${t.imagen}" alt=""></div>` : ''}<p style="font-weight:700;margin-bottom:14px">${esc(t.resumen)}</p><div class="body">${t.contenido.split(/\n\n+/).map(p => `<p>${esc(p)}</p>`).join('')}</div>
+    ${t.instagram ? `<a class="igl" style="margin-top:16px" href="${esc(t.instagram)}" target="_blank" rel="noopener"><svg><use href="#i-ig"/></svg>Ver publicación en Instagram</a>` : ''}<div class="result ok" style="margin-top:18px"><p><strong>¿Tienes dudas?</strong> Llama a PAM Baruta al ${CONFIG.tel}, las 24 horas.</p></div>`);
+}
+(async () => {
+  TIPS = await DataService.listTips(); renderCats(); render();
+  const h = location.hash.slice(1); if (h && TIPS.some(t => t.id === h)) abrir(h);
+})();
+
+</script>
+</body>
+</html>
